@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALPHA_TERMINAL // POLYMARKET</title>
+<style>
+  :root {
+    /* 2026 OLED Brutalism */
+    --bg: #000000;
+    --text: #8b8b93;
+    --highlight: #ffffff;
+    --up: #10b981;
+    --down: #ef4444;
+    --dim: #27272a;
+    --border: #18181b;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Courier New', Courier, monospace;
+    margin: 0;
+    padding: 24px;
+    font-weight: 500;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header { 
+    border-bottom: 1px solid var(--dim); 
+    padding-bottom: 16px; 
+    margin-bottom: 24px; 
+  }
+
+  h1 { 
+    margin: 0; 
+    font-size: 1.1rem; 
+    text-transform: uppercase; 
+    color: var(--highlight); 
+    letter-spacing: 2px;
+  }
+
+  .status { font-size: 0.75rem; margin-top: 6px; color: var(--text); letter-spacing: 1px; }
+
+  h2 { 
+    font-size: 0.8rem; 
+    color: var(--highlight); 
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px; 
+    border-left: 2px solid var(--highlight);
+    padding-left: 8px;
+  }
+
+  /* Controls */
+  .controls { 
+    display: flex; 
+    gap: 40px; 
+    border-bottom: 1px solid var(--border); 
+    padding-bottom: 16px; 
+    margin-bottom: 32px; 
+  }
+  .control-group { display: flex; gap: 12px; align-items: center; }
+  .label { font-size: 0.75rem; color: var(--dim); font-weight: bold;}
+
+  button.filter-btn { 
+    background: transparent; 
+    color: var(--text); 
+    border: none; 
+    font-family: inherit; 
+    font-size: 0.8rem; 
+    cursor: pointer; 
+    padding: 0; 
+    transition: color 0.2s;
+  }
+  button.filter-btn:hover { color: var(--highlight); }
+  button.filter-btn.active { 
+    color: var(--highlight); 
+    font-weight: bold; 
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: var(--dim);
+  }
+
+  /* Layout */
+  .grid-three { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 32px; }
+  pre { margin: 0; font-size: 12px; line-height: 1.8; white-space: pre; }
+
+  /* Touch Interactive Rows */
+  .interactive-bet { 
+    color: var(--text); 
+    cursor: pointer; 
+    transition: all 0.15s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    padding: 2px 4px;
+    margin-left: -4px;
+  }
+  .interactive-bet:hover { color: var(--highlight); }
+  .interactive-bet.active-focus { 
+    color: var(--bg); 
+    background-color: var(--highlight); 
+    font-weight: bold;
+  }
+
+  /* Data Accents */
+  .title { color: var(--text); } 
+  .shift-up { color: var(--up); }
+  .shift-down { color: var(--down); }
+
+  /* Square ASCII Chart Scoping */
+  .ascii-chart-container {
+    color: var(--highlight);
+    font-size: 14px;
+    line-height: 0.65; /* The magic square ratio */
+    letter-spacing: 0;
+    margin-top: 24px;
+    padding: 16px;
+    border: 1px dashed var(--dim);
+    display: inline-block;
+  }
+  .chart-axis { color: var(--dim); }
+  .chart-label { color: var(--text); font-size: 10px; }
+  .chart-title { color: var(--highlight); font-size: 14px; line-height: 1.5; margin-bottom: 24px; display: block; border-bottom: 1px solid var(--dim); padding-bottom: 8px;}
+
+  /* Whale Alerts */
+  .whale-row { 
+    color: var(--text); 
+    border-left: 1px solid var(--dim); 
+    padding-left: 12px; 
+    margin-bottom: 12px; 
+  }
+  .whale-amt { color: var(--highlight); }
+  .whale-meta { color: var(--dim); font-size: 0.7rem; }
+</style>
+</head>
+<body>
+
+<div class="terminal">
+  <header>
+    <h1>POLYMARKET // ALPHA_TERMINAL</h1>
+    <div class="status" id="sys-status">SYS_STATUS: BOOTING PIPELINE...</div>
+  </header>
+  
+  <nav class="controls">
+    <div class="control-group">
+      <span class="label">NEXUS_TAG:</span>
+      <button class="filter-btn active" data-filter="category" data-val="ALL">[ ALL ]</button>
+      <button class="filter-btn" data-filter="category" data-val="MACRO">[ MACRO ]</button>
+      <button class="filter-btn" data-filter="category" data-val="CRYPTO">[ CRYPTO ]</button>
+    </div>
+    
+    <div class="control-group">
+      <span class="label">MIN_LIQUIDITY:</span>
+      <button class="filter-btn active" data-filter="liquidity" data-val="0">[ ANY ]</button>
+      <button class="filter-btn" data-filter="liquidity" data-val="1">[ > $1M ]</button>
+      <button class="filter-btn" data-filter="liquidity" data-val="5">[ > $5M ]</button>
+    </div>
+  </nav>
+
+  <main class="grid-three">
+    <section class="panel">
+      <h2>[ NODE A: LIQUIDITY ]</h2>
+      <pre id="volume-board"></pre>
+    </section>
+    
+    <section class="panel">
+      <h2>[ NODE B: MOMENTUM ]</h2>
+      <pre id="momentum-board"></pre>
+    </section>
+
+    <section class="panel">
+      <h2>[ NODE C: WHALE_WATCH ]</h2>
+      <pre id="whale-board"></pre>
+    </section>
+  </main>
+</div>
+
+<script>
+  const volumeBoard = document.getElementById('volume-board');
+  const momentumBoard = document.getElementById('momentum-board');
+  const whaleBoard = document.getElementById('whale-board');
+  const statusDisplay = document.getElementById('sys-status');
+
+  let marketData = [];
+  let activeFilters = { category: "ALL", liquidity: 0, focusId: null };
+  let whaleHistory = [];
+
+  // --- PIPELINE EXTRACTION ---
+  const DATA_URL = "./market-data.json";
+
+  async function bootPipeline() {
+    try {
+      // Append a cache-busting timestamp so GitHub Pages doesn't serve a stale file
+      const response = await fetch(`${DATA_URL}?t=${new Date().getTime()}`);
+      if (!response.ok) throw new Error("Awaiting Cron Job Generation...");
+      
+      marketData = await response.json();
+      const lastUpdated = marketData[0]?.last_updated || new Date().toISOString();
+      
+      // Format the timestamp cleanly
+      const timeString = new Date(lastUpdated).toLocaleTimeString('en-US', { hour12: false });
+      statusDisplay.innerHTML = `SYS_STATUS: ONLINE | LAST_EPOCH: ${timeString} UTC`;
+      
+      renderTerminal();
+      generateWhaleSimulations(); // Populate Node C
+      
+    } catch (error) {
+      statusDisplay.innerHTML = `SYS_STATUS: AWAITING GITHUB ACTION CRON...`;
+      volumeBoard.innerHTML = `\n  [ ERR: DATA FILE NOT FOUND ]\n  Ensure fetch_markets.py has run.`;
+    }
+  }
+
+  // --- INTERACTIVE BINDINGS ---
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const filterType = e.target.dataset.filter;
+      const filterVal = e.target.dataset.val;
+
+      document.querySelectorAll(`.filter-btn[data-filter="${filterType}"]`).forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+
+      activeFilters[filterType] = filterType === 'liquidity' ? parseFloat(filterVal) : filterVal;
+      activeFilters.focusId = null; // Clear isolation mode on filter change
+      
+      renderTerminal();
+      renderWhaleBoard();
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    const target = e.target.closest('.interactive-bet');
+    if (!target) return;
+
+    const clickedId = target.dataset.id;
+    
+    // Toggle Isolation Mode
+    if (activeFilters.focusId === clickedId) {
+      activeFilters.focusId = null; 
+    } else {
+      activeFilters.focusId = clickedId;
+    }
+    
+    renderTerminal();
+    renderWhaleBoard();
+  });
+
+  // --- RENDER ENGINES ---
+  function generateProbBar(prob) {
+    const yesLength = Math.floor((prob / 100) * 10);
+    return '▓'.repeat(yesLength) + '░'.repeat(10 - yesLength);
+  }
+
+  // The perfectly square ASCII engine (Expanded view)
+  function renderSquareChart(data, title) {
+    const height = 6;
+    const max = Math.max(...data) + 2; // Add padding to top
+    const min = Math.max(0, Math.min(...data) - 2); 
+    const range = max - min === 0 ? 1 : max - min;
+    
+    let grid = Array(height).fill().map(() => Array(data.length * 2).fill(' '));
+
+    for (let i = 0; i < data.length - 1; i++) {
+      const y1 = Math.floor(((data[i] - min) / range) * (height * 2 - 1));
+      const y2 = Math.floor(((data[i+1] - min) / range) * (height * 2 - 1));
+      
+      const col1 = i * 2;
+      const col2 = i * 2 + 1;
+      const row1 = (height - 1) - Math.floor(y1 / 2);
+      const row2 = (height - 1) - Math.floor(y2 / 2);
+      
+      const isUpper1 = y1 % 2 !== 0;
+      const isUpper2 = y2 % 2 !== 0;
+
+      grid[row1][col1] = isUpper1 ? '▀' : '▄';
+
+      if (row1 === row2) {
+        grid[row2][col2] = isUpper2 ? '▀' : '▄'; 
+      } else if (y2 > y1) {
+        grid[Math.min(row1, row2)][col2] = '▞';  
+      } else {
+        grid[Math.max(row1, row2)][col2] = '▚';  
+      }
+    }
+    
+    const lastY = Math.floor(((data[data.length-1] - min) / range) * (height * 2 - 1));
+    const lastRow = (height - 1) - Math.floor(lastY / 2);
+    grid[lastRow][(data.length - 1) * 2] = lastY % 2 !== 0 ? '▀' : '▄';
+
+    let output = `<div class="ascii-chart-container">`;
+    output += `<span class="chart-title">[ ISOLATED_TREND ]: ${title}</span>\n`;
+    
+    for (let r = 0; r < height; r++) {
+      const yVal = Math.round(max - (r * (range / (height - 1))));
+      output += `<span class="chart-label">${String(yVal).padStart(3, ' ')}</span> <span class="chart-axis">┤</span> ${grid[r].join('')}\n`;
+    }
+    
+    output += `    <span class="chart-axis">└${'─'.repeat(data.length * 2)}&gt; EPOCHS</span>\n`;
+    output += `</div>`;
+    return output;
+  }
+
+  function renderTerminal() {
+    let filteredData = marketData.filter(bet => {
+      const matchCategory = activeFilters.category === "ALL" || bet.category === activeFilters.category;
+      const matchLiquidity = bet.vol >= activeFilters.liquidity;
+      const matchFocus = activeFilters.focusId === null || String(bet.id) === activeFilters.focusId;
+      return matchCategory && matchLiquidity && matchFocus;
+    });
+
+    let volSorted = [...filteredData].sort((a, b) => b.vol - a.vol).slice(0, 7);
+    let momSorted = [...filteredData].sort((a, b) => Math.abs(b.epoch_velocity || 0) - Math.abs(a.epoch_velocity || 0)).slice(0, 7);
+
+    // If Isolated Mode is active, render the giant chart in Node B
+    if (activeFilters.focusId && filteredData.length === 1) {
+       const bet = filteredData[0];
+       
+       // Render standard single row for Node A
+       volumeBoard.innerHTML = ` PROB | SENTIMENT  | LIQUIDITY | EVENT\n------+------------+-----------+-------------------------\n ${(String(bet.prob) + "%").padStart(4, ' ')} | ${generateProbBar(bet.prob)} | `$${bet.vol.toFixed(1)}M`.padStart(8, ' ')}  | <span class="interactive-bet active-focus" data-id="${bet.id}">${bet.market}</span>\n`;
+       
+       // Render Square Chart in Node B
+       // (Uses fallback data if 'history' array from Python is too short)
+       const plotData = bet.history && bet.history.length > 3 ? bet.history : [bet.prob-4, bet.prob-2, bet.prob, bet.prob+1, bet.prob, bet.prob];
+       momentumBoard.innerHTML = renderSquareChart(plotData, bet.market);
+       return;
+    }
+
+    // --- DEFAULT RENDER (LIST MODE) ---
+    
+    // Node A (Liquidity)
+    if (volSorted.length === 0) {
+      volumeBoard.innerHTML = "\n  [ ERR: NO MARKETS MEET PARAMETERS ]";
+    } else {
+      let volOutput = " PROB | SENTIMENT  | LIQUIDITY | EVENT\n";
+      volOutput += "------+------------+-----------+-------------------------\n";
+      volSorted.forEach(bet => {
+        const probStr = (String(bet.prob) + "%").padStart(4, ' '); 
+        const probBar = generateProbBar(bet.prob);
+        const liqStr = `$${bet.vol.toFixed(1)}M`.padStart(8, ' ');
+        volOutput += ` ${probStr} | ${probBar} | ${liqStr}  | <span class="interactive-bet" data-id="${bet.id}">${bet.market}</span>\n\n`;
+      });
+      volumeBoard.innerHTML = volOutput;
+    }
+
+    // Node B (Momentum/Velocity)
+    if (momSorted.length === 0) {
+      momentumBoard.innerHTML = "\n  [ ERR: NO MARKETS MEET PARAMETERS ]";
+    } else {
+      let momOutput = " 10M Δ | PROB | EVENT\n";
+      momOutput += "-------+------+-------------------------\n";
+      momSorted.forEach(bet => {
+        const vel = bet.epoch_velocity || 0;
+        const shiftVal = String(Math.abs(vel)).padStart(2, ' ') + "%";
+        const shiftIcon = vel >= 0 ? '▲' : '▼';
+        const shiftClass = vel >= 0 ? 'shift-up' : 'shift-down';
+        const shiftHTML = `<span class="${shiftClass}">${shiftIcon} ${shiftVal}</span>`;
+        
+        const probStr = (String(bet.prob) + "%").padStart(4, ' ');
+        momOutput += ` ${shiftHTML} | ${probStr} | <span class="interactive-bet" data-id="${bet.id}">${bet.market}</span>\n\n`;
+      });
+      momentumBoard.innerHTML = momOutput;
+    }
+  }
+
+  // --- NODE C: WHALE WATCH (MOCK DATA GENERATOR) ---
+  function generateWhaleSimulations() {
+    if (marketData.length === 0) return;
+    
+    // Grab a random highly liquid market
+    const pool = marketData.slice(0, 5);
+    const trade = pool[Math.floor(Math.random() * pool.length)];
+    const timestamp = new Date().toLocaleTimeString('en-GB');
+    
+    const size = Math.floor(Math.random() * 90000) + 10000;
+    const side = Math.random() > 0.5 ? "BUY YES" : "SELL NO";
+    const userHash = "0x" + Math.random().toString(16).substring(2, 6) + "..." + Math.random().toString(16).substring(2, 4);
+    
+    whaleHistory.unshift({ id: trade.id, market: trade.market, time: timestamp, size, side, user: userHash });
+    if (whaleHistory.length > 15) whaleHistory.pop(); 
+    
+    renderWhaleBoard();
+  }
+
+  function renderWhaleBoard() {
+    let displayHistory = whaleHistory;
+    if (activeFilters.focusId) {
+      displayHistory = whaleHistory.filter(t => String(t.id) === activeFilters.focusId);
+    }
+
+    if (displayHistory.length === 0) {
+      whaleBoard.innerHTML = "\n  [ AWAITING EPOCH ANOMALIES FOR ISOLATION... ]";
+      return;
+    }
+
+    const output = displayHistory.slice(0, 8).map(trade => {
+      const activeClass = activeFilters.focusId === String(trade.id) ? 'active-focus' : '';
+      return `<div class="whale-row">` +
+             `[${trade.time}] <span class="whale-amt">$${(trade.size/1000).toFixed(1)}k</span> ${trade.side}\n` +
+             `<span class="interactive-bet ${activeClass}" data-id="${trade.id}">${trade.market}</span>\n` +
+             `<span class="whale-meta">USER: ${trade.user}</span></div>`;
+    }).join('');
+    
+    whaleBoard.innerHTML = output;
+  }
+
+  // --- INITIALIZATION ---
+  bootPipeline();
+  // Check the JSON file every 60 seconds (since Cron runs every 10 mins)
+  setInterval(bootPipeline, 60000);
+  // Add some fake whale action to make Node C feel alive
+  setInterval(generateWhaleSimulations, 8500); 
+</script>
+</body>
+</html>

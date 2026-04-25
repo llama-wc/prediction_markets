@@ -30,36 +30,39 @@ def fetch_and_process():
         slug = event.get('slug', '')
         url = f"https://polymarket.com/event/{slug}" if slug else "https://polymarket.com"
 
-        # --- BULLETPROOF PROBABILITY EXTRACTOR ---
         prob = 50
         try:
             markets = event.get('markets', [])
             if markets:
                 prices_raw = markets[0].get('outcomePrices')
                 if prices_raw:
-                    # Handle if Polymarket sends a stringified JSON array
                     if isinstance(prices_raw, str):
                         try:
                             prices_raw = json.loads(prices_raw.replace("'", '"'))
                         except:
                             prices_raw = prices_raw.strip('][').split(', ')
                     
-                    # Extract the first float
                     if isinstance(prices_raw, list) and len(prices_raw) > 0:
                         prob = int(float(prices_raw[0]) * 100)
-        except Exception as e:
-            pass # Fallback to 50 if the payload is totally malformed
+        except Exception:
+            pass 
 
-        # Safely calculate velocity
         past_record = old_data.get(market_id, {})
-        history = past_record.get('history', [prob] * 7) 
+        history = past_record.get('history', [])
         
-        last_prob = history[-1]
-        epoch_velocity = prob - last_prob
-        shift = past_record.get('shift', 0) + epoch_velocity
+        # --- THE PURE DATA ENGINE ---
+        # If the market is brand new, pad it with the current probability
+        if not history:
+            history = [prob] * 7
+            epoch_velocity = 0
+        else:
+            # If history exists, calculate the real shift and cycle the array
+            last_prob = history[-1]
+            epoch_velocity = prob - last_prob
+            history.pop(0)
+            history.append(prob)
 
-        history.pop(0)
-        history.append(prob)
+        shift = past_record.get('shift', 0) + epoch_velocity
 
         processed_data.append({
             "id": market_id,

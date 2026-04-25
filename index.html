@@ -38,6 +38,17 @@
   .status { font-size: 0.7rem; margin-top: 4px; color: var(--up); }
   h2 { font-size: 0.8rem; color: var(--highlight); margin-bottom: 12px; border-left: 2px solid var(--cyan); padding-left: 6px; }
 
+  .controls { display: flex; gap: 40px; border-bottom: 1px dashed var(--border); padding-bottom: 12px; margin-bottom: 24px; overflow-x: auto; }
+  .control-group { display: flex; gap: 12px; align-items: center; }
+  .label { font-size: 0.7rem; color: var(--dim); font-weight: bold;}
+
+  button.filter-btn { 
+    background: transparent; color: var(--text); border: none; 
+    font-family: inherit; font-size: 0.75rem; cursor: pointer; padding: 0; 
+  }
+  button.filter-btn:hover { color: var(--highlight); }
+  button.filter-btn.active { color: var(--cyan); text-decoration: underline; text-underline-offset: 4px; }
+
   .grid-three { display: flex; flex-direction: column; gap: 24px; }
   pre { margin: 0; white-space: pre; overflow: hidden; }
 
@@ -49,12 +60,7 @@
   .col-spark { width: 50px; color: var(--cyan); letter-spacing: -1px; }
   .col-vel { width: 45px; }
   .col-market { 
-    flex-grow: 1; 
-    white-space: nowrap; 
-    overflow: hidden; 
-    text-overflow: ellipsis; 
-    color: var(--highlight);
-    cursor: pointer;
+    flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--highlight); cursor: pointer;
   }
 
   .external-link { color: var(--dim); text-decoration: none; margin-right: 4px; }
@@ -73,6 +79,18 @@
     <h1>SYS.TERMINAL // POLYMARKET</h1>
     <div class="status" id="sys-status">CONNECTION_ESTABLISHED // AWAITING PAYLOAD...</div>
   </header>
+
+  <nav class="controls">
+    <div class="control-group" id="dynamic-categories">
+      </div>
+    
+    <div class="control-group">
+      <span class="label">MIN_LIQ:</span>
+      <button class="filter-btn active" data-filter="liquidity" data-val="0">[ ANY ]</button>
+      <button class="filter-btn" data-filter="liquidity" data-val="1">[ > $1M ]</button>
+      <button class="filter-btn" data-filter="liquidity" data-val="5">[ > $5M ]</button>
+    </div>
+  </nav>
 
   <main class="grid-three">
     <section>
@@ -97,8 +115,10 @@
   const momentumBoard = document.getElementById('momentum-board');
   const whaleBoard = document.getElementById('whale-board');
   const statusDisplay = document.getElementById('sys-status');
+  const categoryContainer = document.getElementById('dynamic-categories');
 
   let marketData = [];
+  let activeFilters = { category: "ALL", liquidity: 0 };
   const DATA_URL = "./market-data.json";
 
   function getBrailleSparkline(history) {
@@ -123,43 +143,82 @@
       const timeString = new Date().toISOString().split('T')[1].substring(0,8);
       statusDisplay.innerHTML = `LIVE // LAST_SYNC: ${timeString} UTC // 10M_EPOCH_ACTIVE`;
       
+      buildDynamicSlicers();
       renderDashboards();
     } catch (error) {
       statusDisplay.innerHTML = `ERR: PIPELINE SEVERED. AWAITING GITHUB ACTION.`;
     }
   }
 
+  function buildDynamicSlicers() {
+    // Extract unique categories from the live payload
+    const uniqueCategories = [...new Set(marketData.map(item => item.category))].filter(Boolean).slice(0, 4);
+    
+    let html = `<span class="label">TAG:</span><button class="filter-btn ${activeFilters.category === 'ALL' ? 'active' : ''}" data-filter="category" data-val="ALL">[ ALL ]</button>`;
+    
+    uniqueCategories.forEach(cat => {
+      const isActive = activeFilters.category === cat ? 'active' : '';
+      html += `<button class="filter-btn ${isActive}" data-filter="category" data-val="${cat}">[ ${cat} ]</button>`;
+    });
+    
+    categoryContainer.innerHTML = html;
+
+    // Re-bind click events
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const filterType = e.target.dataset.filter;
+        const filterVal = e.target.dataset.val;
+
+        document.querySelectorAll(`.filter-btn[data-filter="${filterType}"]`).forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+
+        activeFilters[filterType] = filterType === 'liquidity' ? parseFloat(filterVal) : filterVal;
+        renderDashboards();
+      });
+    });
+  }
+
   function renderDashboards() {
     if (marketData.length === 0) return;
 
-    let volSorted = [...marketData].sort((a, b) => b.vol - a.vol).slice(0, 7);
-    let momSorted = [...marketData].sort((a, b) => Math.abs(b.epoch_velocity || 0) - Math.abs(a.epoch_velocity || 0)).slice(0, 7);
+    let filteredData = marketData.filter(bet => {
+      const matchCategory = activeFilters.category === "ALL" || bet.category === activeFilters.category;
+      const matchLiquidity = bet.vol >= activeFilters.liquidity;
+      return matchCategory && matchLiquidity;
+    });
+
+    let volSorted = [...filteredData].sort((a, b) => b.vol - a.vol).slice(0, 7);
+    let momSorted = [...filteredData].sort((a, b) => Math.abs(b.epoch_velocity || 0) - Math.abs(a.epoch_velocity || 0)).slice(0, 7);
 
     // --- RENDER LIQUIDITY ---
     let volHtml = `<div class="row" style="color:var(--dim); border:none;">
       <div class="col-prob">PRB</div><div class="col-spark">TREND</div><div class="col-vol">VOL</div><div class="col-market">ASSET</div>
     </div>`;
     
+    if (volSorted.length === 0) volHtml += `<div class="row"><div class="col-market" style="color:var(--dim)">[ NO DATA MATCHES SLICER ]</div></div>`;
+    
     volSorted.forEach(bet => {
       const spark = getBrailleSparkline(bet.history);
       const link = `<a href="${bet.url}" target="_blank" class="external-link">[↗]</a>`;
       const volInt = Math.floor(bet.vol);
-      const volDec = Math.floor((bet.vol % 1) * 10); // Extract first decimal cleanly
+      const volDec = Math.floor((bet.vol % 1) * 10);
       
       volHtml += `<div class="row">
         <div class="col-prob">${String(bet.prob).padStart(2, '0')}%</div>
         <div class="col-spark">${spark}</div>
         <div class="col-vol">$${volInt}.${volDec}M</div>
-        <div class="col-market">${link}${bet.market}</div>
+        <div class="col-market">${link}<a href="${bet.url}" target="_blank" style="color:inherit; text-decoration:none;">${bet.market}</a></div>
       </div>`;
     });
     volumeBoard.innerHTML = volHtml;
 
     // --- RENDER VELOCITY ---
     let momHtml = `<div class="row" style="color:var(--dim); border:none;">
-      <div class="col-vel">10M_Δ</div><div class="col-prob">PRB</div><div class="col-market">ASSET</div>
+      <div class="col-vel">24H_Δ</div><div class="col-prob">PRB</div><div class="col-market">ASSET</div>
     </div>`;
     
+    if (momSorted.length === 0) momHtml += `<div class="row"><div class="col-market" style="color:var(--dim)">[ NO DATA MATCHES SLICER ]</div></div>`;
+
     momSorted.forEach(bet => {
       const vel = bet.epoch_velocity || 0;
       const shiftIcon = vel >= 0 ? '▲' : '▼';
@@ -169,7 +228,7 @@
       momHtml += `<div class="row">
         <div class="col-vel ${shiftClass}">${shiftIcon}${Math.abs(vel)}%</div>
         <div class="col-prob">${String(bet.prob).padStart(2, '0')}%</div>
-        <div class="col-market">${link}${bet.market}</div>
+        <div class="col-market">${link}<a href="${bet.url}" target="_blank" style="color:inherit; text-decoration:none;">${bet.market}</a></div>
       </div>`;
     });
     momentumBoard.innerHTML = momHtml;
@@ -178,7 +237,9 @@
   // --- WHALE WATCH SIMULATOR ---
   function pushWhaleOrder() {
     if (marketData.length === 0) return;
-    const trade = marketData[Math.floor(Math.random() * 5)];
+    const trade = marketData[Math.floor(Math.random() * Math.min(marketData.length, 5))];
+    if(!trade) return;
+    
     const time = new Date().toISOString().split('T')[1].substring(0,8);
     const size = Math.floor(Math.random() * 90) + 10;
     const side = Math.random() > 0.5 ? "BUY YES" : "SELL NO";
@@ -186,7 +247,7 @@
     
     const row = document.createElement('div');
     row.className = 'whale-row';
-    row.innerHTML = `[${time}] <span class="whale-amt">$${size}.0k</span> ${side} <br> <span style="color:var(--dim)">USR:${user} -></span> ${trade.market}`;
+    row.innerHTML = `[${time}] <span class="whale-amt">$${size}.0k</span> ${side} <br> <span style="color:var(--dim)">USR:${user} -></span> <a href="${trade.url}" target="_blank" style="color:var(--text); text-decoration:none;">${trade.market}</a>`;
     
     whaleBoard.prepend(row);
     if (whaleBoard.children.length > 6) whaleBoard.lastChild.remove();

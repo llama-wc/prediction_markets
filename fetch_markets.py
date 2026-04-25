@@ -13,10 +13,9 @@ def fetch_and_process():
         try:
             with open(DATA_FILE, 'r') as f:
                 raw_old = json.load(f)
-                # Map old data by ID for quick comparison
                 old_data = {item['id']: item for item in raw_old}
         except Exception:
-            pass # If the file is corrupted or empty, start fresh
+            pass 
 
     # 2. Fetch fresh live data
     headers = {"Accept": "application/json"}
@@ -31,24 +30,32 @@ def fetch_and_process():
         title = event.get('title', 'Unknown')
         volume = float(event.get('volume', 0)) / 1000000
 
-        # Extract probability
+        # Extract probability safely
         prob = 50
         if event.get('markets') and len(event['markets']) > 0:
-            prices = event['markets'][0].get('outcomePrices', ['0.5', '0.5'])
-            prob = int(float(prices[0]) * 100)
+            prices_raw = event['markets'][0].get('outcomePrices', ['0.5', '0.5'])
+            
+            # THE FIX: Decode if Polymarket sends a string instead of a list
+            if isinstance(prices_raw, str):
+                try:
+                    prices_raw = json.loads(prices_raw)
+                except json.JSONDecodeError:
+                    prices_raw = ['0.5', '0.5']
+            
+            try:
+                prob = int(float(prices_raw[0]) * 100)
+            except (ValueError, IndexError, TypeError):
+                prob = 50
 
         # 4. Cross-reference with old data for Epoch Math
         past_record = old_data.get(market_id, {})
-        history = past_record.get('history', [prob] * 7) # Default flat history
+        history = past_record.get('history', [prob] * 7) 
         
-        # Calculate the 10-minute epoch velocity
         last_prob = history[-1]
         epoch_velocity = prob - last_prob
 
-        # Update the 24H shift (Simulated here, but can be derived from deeper history later)
         shift = past_record.get('shift', 0) + epoch_velocity
 
-        # Cycle the history array (Drop the oldest, append the newest)
         history.pop(0)
         history.append(prob)
 
@@ -64,7 +71,6 @@ def fetch_and_process():
             "last_updated": datetime.utcnow().isoformat()
         })
 
-    # Sort by heavy liquidity
     processed_data = sorted(processed_data, key=lambda x: x['vol'], reverse=True)
 
     # 5. Overwrite the JSON file

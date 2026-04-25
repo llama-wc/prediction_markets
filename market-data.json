@@ -1,11 +1,10 @@
 [
   {
     "id": "16167",
-    "category": "MACRO",
+    "category": "{'ID':_'12",
     "market": "MicroStrategy sells any Bitcoin by ___ ?",
     "prob": 0,
     "vol": 22.25,
-    "shift": 0,
     "epoch_velocity": 0,
     "history": [
       0,
@@ -17,15 +16,14 @@
       0
     ],
     "url": "https://polymarket.com/event/microstrategy-sell-any-bitcoin-in-2025",
-    "last_updated": "2026-04-25T23:49:55.845788"
+    "last_updated": "2026-04-25T23:57:03.063060"
   },
   {
     "id": "23784",
-    "category": "MACRO",
+    "category": "{'ID':_'59",
     "market": "What will happen before GTA VI?",
     "prob": 52,
     "vol": 21.39,
-    "shift": 0,
     "epoch_velocity": 0,
     "history": [
       52,
@@ -37,15 +35,14 @@
       52
     ],
     "url": "https://polymarket.com/event/what-will-happen-before-gta-vi",
-    "last_updated": "2026-04-25T23:49:55.845877"
+    "last_updated": "2026-04-25T23:57:06.323157"
   },
   {
     "id": "17725",
-    "category": "MACRO",
+    "category": "{'ID':_'10",
     "market": "Starmer out by...?",
     "prob": 0,
     "vol": 15.71,
-    "shift": 0,
     "epoch_velocity": 0,
     "history": [
       0,
@@ -57,35 +54,33 @@
       0
     ],
     "url": "https://polymarket.com/event/starmer-out-in-2025",
-    "last_updated": "2026-04-25T23:49:55.845839"
+    "last_updated": "2026-04-25T23:57:04.554464"
   },
   {
     "id": "23792",
-    "category": "MACRO",
+    "category": "{'ID':_'59",
     "market": "GTA VI released before June 2026?",
     "prob": 0,
     "vol": 13.84,
-    "shift": 0,
     "epoch_velocity": 0,
     "history": [
-      0,
-      0,
-      0,
+      1,
+      1,
+      1,
       0,
       0,
       0,
       0
     ],
     "url": "https://polymarket.com/event/gta-vi-released-before-june-2026",
-    "last_updated": "2026-04-25T23:49:55.845889"
+    "last_updated": "2026-04-25T23:57:06.583012"
   },
   {
     "id": "17858",
-    "category": "MACRO",
+    "category": "{'ID':_'10",
     "market": "Ukraine recognizes Russian sovereignty over its territory by...?",
     "prob": 0,
     "vol": 2.52,
-    "shift": 0,
     "epoch_velocity": 0,
     "history": [
       0,
@@ -97,15 +92,14 @@
       0
     ],
     "url": "https://polymarket.com/event/ukraine-recognizes-russian-sovereignty-over-ukrainian-territory-in-2025",
-    "last_updated": "2026-04-25T23:49:55.845845"
+    "last_updated": "2026-04-25T23:57:04.796659"
   },
   {
     "id": "18576",
-    "category": "MACRO",
+    "category": "{'ID':_'10",
     "market": "Ukraine election held by...?",
     "prob": 0,
     "vol": 2.16,
-    "shift": 0,
     "epoch_velocity": 0,
     "history": [
       0,
@@ -117,15 +111,14 @@
       0
     ],
     "url": "https://polymarket.com/event/ukraine-election-held-in-2025",
-    "last_updated": "2026-04-25T23:49:55.845861"
+    "last_updated": "2026-04-25T23:57:05.552925"
   },
   {
     "id": "22448",
-    "category": "MACRO",
+    "category": "{'ID':_'10",
     "market": "Taylor Swift pregnant in 2025?",
     "prob": 0,
     "vol": 2.02,
-    "shift": 0,
     "epoch_velocity": 0,
     "history": [
       0,
@@ -137,15 +130,14 @@
       0
     ],
     "url": "https://polymarket.com/event/taylor-swift-pregnant-in-2025",
-    "last_updated": "2026-04-25T23:49:55.845867"
+    "last_updated": "2026-04-25T23:57:05.791673"
   },
   {
     "id": "16263",
-    "category": "MACRO",
+    "category": "{'ID':_'13",
     "market": "Macron out by...?",
     "prob": 0,
     "vol": 1.93,
-    "shift": 0,
     "epoch_velocity": 0,
     "history": [
       0,
@@ -157,15 +149,14 @@
       0
     ],
     "url": "https://polymarket.com/event/macron-out-in-2025",
-    "last_updated": "2026-04-25T23:49:55.845816"
+    "last_updated": "2026-04-25T23:57:03.553097"
   },
   {
     "id": "16183",
-    "category": "MACRO",
+    "category": "{'ID':_'10",
     "market": "Kraken IPO by ___ ?",
     "prob": 0,
     "vol": 1.54,
-    "shift": 0,
     "epoch_velocity": 0,
     "history": [
       0,
@@ -177,15 +168,14 @@
       0
     ],
     "url": "https://polymarket.com/event/kraken-ipo-in-2025",
-    "last_updated": "2026-04-25T23:49:55.845808"
+    "last_updated": "2026-04-25T23:57:03.300581"
   },
   {
     "id": "18558",
-    "category": "MACRO",
+    "category": "{'ID':_'10",
     "market": "Ukraine election called by...?",
     "prob": 0,
     "vol": 1.48,
-    "shift": 0,
     "epoch_velocity": 0,
     "history": [
       0,
@@ -197,15 +187,14 @@
       0
     ],
     "url": "https://polymarket.com/event/ukraine-election-called-in-2025",
-    "last_updated": "2026-04-25T23:49:55.845850"
+    "last_updated": "2026-04-25T23:57:05.039172"
   },
   {
     "id": "18571",
-    "category": "MACRO",
+    "category": "{'ID':_'10",
     "market": "Will any country leave NATO by...?",
     "prob": 0,
     "vol": 0.87,
-    "shift": 0,
     "epoch_velocity": 0,
     "history": [
       0,
@@ -217,15 +206,14 @@
       0
     ],
     "url": "https://polymarket.com/event/will-any-country-leave-nato-in-2025",
-    "last_updated": "2026-04-25T23:49:55.845856"
+    "last_updated": "2026-04-25T23:57:05.276618"
   },
   {
     "id": "16423",
-    "category": "MACRO",
+    "category": "{'ID':_'10",
     "market": "UK election called by...?",
     "prob": 0,
     "vol": 0.74,
-    "shift": 0,
     "epoch_velocity": 0,
     "history": [
       0,
@@ -237,15 +225,14 @@
       0
     ],
     "url": "https://polymarket.com/event/uk-election-called-by",
-    "last_updated": "2026-04-25T23:49:55.845822"
+    "last_updated": "2026-04-25T23:57:03.825496"
   },
   {
     "id": "17549",
-    "category": "MACRO",
+    "category": "{'ID':_'95",
     "market": "NATO/EU troops fighting in Ukraine by...?",
     "prob": 0,
     "vol": 0.28,
-    "shift": 0,
     "epoch_velocity": 0,
     "history": [
       0,
@@ -257,15 +244,14 @@
       0
     ],
     "url": "https://polymarket.com/event/natoeu-troops-fighting-in-ukraine-in-2025",
-    "last_updated": "2026-04-25T23:49:55.845833"
+    "last_updated": "2026-04-25T23:57:04.315171"
   },
   {
     "id": "17526",
-    "category": "MACRO",
+    "category": "{'ID':_'51",
     "market": "China x India military clash by...?",
     "prob": 0,
     "vol": 0.23,
-    "shift": 0,
     "epoch_velocity": 0,
     "history": [
       0,
@@ -277,15 +263,14 @@
       0
     ],
     "url": "https://polymarket.com/event/china-x-india-military-clash-by-december-31",
-    "last_updated": "2026-04-25T23:49:55.845828"
+    "last_updated": "2026-04-25T23:57:04.067456"
   },
   {
     "id": "22527",
-    "category": "MACRO",
+    "category": "{'ID':_'2'",
     "market": "Mike Johnson out as Speaker by...?",
     "prob": 0,
     "vol": 0.1,
-    "shift": 0,
     "epoch_velocity": 0,
     "history": [
       0,
@@ -297,6 +282,6 @@
       0
     ],
     "url": "https://polymarket.com/event/mike-johnson-out-as-speaker-by",
-    "last_updated": "2026-04-25T23:49:55.845872"
+    "last_updated": "2026-04-25T23:57:06.070481"
   }
 ]

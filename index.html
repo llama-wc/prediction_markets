@@ -82,9 +82,32 @@
     text-decoration-color: var(--dim);
   }
 
-  /* Layout */
-  .grid-three { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 32px; }
-  pre { margin: 0; font-size: 12px; line-height: 1.8; white-space: pre; }
+  /* Responsive Layout: Stacks vertically on tablet/mobile */
+  .grid-three { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 40px; 
+  }
+
+  @media (min-width: 1200px) {
+    .grid-three { 
+      display: grid; 
+      grid-template-columns: 1fr 1fr 1fr; 
+    }
+  }
+
+  /* External Link Styling */
+  .external-link {
+    color: var(--dim);
+    text-decoration: none;
+    transition: color 0.2s;
+    margin-right: 6px;
+  }
+  .external-link:hover {
+    color: var(--highlight);
+  }
+
+  pre { margin: 0; font-size: 12px; line-height: 1.8; white-space: pre; overflow-x: auto; }
 
   /* Touch Interactive Rows */
   .interactive-bet { 
@@ -312,22 +335,19 @@
     let volSorted = [...filteredData].sort((a, b) => b.vol - a.vol).slice(0, 7);
     let momSorted = [...filteredData].sort((a, b) => Math.abs(b.epoch_velocity || 0) - Math.abs(a.epoch_velocity || 0)).slice(0, 7);
 
-    // If Isolated Mode is active, render the giant chart in Node B
+    // ISOLATED MODE
     if (activeFilters.focusId && filteredData.length === 1) {
        const bet = filteredData[0];
+       const link = bet.url ? `<a href="${bet.url}" target="_blank" class="external-link">[↗]</a>` : '';
        
-       // Render standard single row for Node A (SYNTAX FIXED HERE)
-       volumeBoard.innerHTML = ` PROB | SENTIMENT  | LIQUIDITY | EVENT\n------+------------+-----------+-------------------------\n ${(String(bet.prob) + "%").padStart(4, ' ')} | ${generateProbBar(bet.prob)} | ${`$${bet.vol.toFixed(1)}M`.padStart(8, ' ')}  | <span class="interactive-bet active-focus" data-id="${bet.id}">${bet.market}</span>\n`;
+       volumeBoard.innerHTML = ` PROB | SENTIMENT  | LIQUIDITY | EVENT\n------+------------+-----------+-------------------------\n ${(String(bet.prob) + "%").padStart(4, ' ')} | ${generateProbBar(bet.prob)} | ${`$${bet.vol.toFixed(1)}M`.padStart(8, ' ')}  | ${link}<span class="interactive-bet active-focus" data-id="${bet.id}">${bet.market}</span>\n`;
        
-       // Render Square Chart in Node B
        const plotData = bet.history && bet.history.length > 3 ? bet.history : [bet.prob-4, bet.prob-2, bet.prob, bet.prob+1, bet.prob, bet.prob];
        momentumBoard.innerHTML = renderSquareChart(plotData, bet.market);
        return;
     }
 
-    // --- DEFAULT RENDER (LIST MODE) ---
-    
-    // Node A (Liquidity)
+    // DEFAULT LIST MODE (NODE A)
     if (volSorted.length === 0) {
       volumeBoard.innerHTML = "\n  [ ERR: NO MARKETS MEET PARAMETERS ]";
     } else {
@@ -337,12 +357,13 @@
         const probStr = (String(bet.prob) + "%").padStart(4, ' '); 
         const probBar = generateProbBar(bet.prob);
         const liqStr = `$${bet.vol.toFixed(1)}M`.padStart(8, ' ');
-        volOutput += ` ${probStr} | ${probBar} | ${liqStr}  | <span class="interactive-bet" data-id="${bet.id}">${bet.market}</span>\n\n`;
+        const link = bet.url ? `<a href="${bet.url}" target="_blank" class="external-link">[↗]</a>` : '';
+        volOutput += ` ${probStr} | ${probBar} | ${liqStr}  | ${link}<span class="interactive-bet" data-id="${bet.id}">${bet.market}</span>\n\n`;
       });
       volumeBoard.innerHTML = volOutput;
     }
 
-    // Node B (Momentum/Velocity)
+    // DEFAULT LIST MODE (NODE B)
     if (momSorted.length === 0) {
       momentumBoard.innerHTML = "\n  [ ERR: NO MARKETS MEET PARAMETERS ]";
     } else {
@@ -354,28 +375,26 @@
         const shiftIcon = vel >= 0 ? '▲' : '▼';
         const shiftClass = vel >= 0 ? 'shift-up' : 'shift-down';
         const shiftHTML = `<span class="${shiftClass}">${shiftIcon} ${shiftVal}</span>`;
-        
         const probStr = (String(bet.prob) + "%").padStart(4, ' ');
-        momOutput += ` ${shiftHTML} | ${probStr} | <span class="interactive-bet" data-id="${bet.id}">${bet.market}</span>\n\n`;
+        const link = bet.url ? `<a href="${bet.url}" target="_blank" class="external-link">[↗]</a>` : '';
+        
+        momOutput += ` ${shiftHTML} | ${probStr} | ${link}<span class="interactive-bet" data-id="${bet.id}">${bet.market}</span>\n\n`;
       });
       momentumBoard.innerHTML = momOutput;
     }
   }
 
-  // --- NODE C: WHALE WATCH (MOCK DATA GENERATOR) ---
   function generateWhaleSimulations() {
     if (marketData.length === 0) return;
-    
-    // Grab a random highly liquid market
     const pool = marketData.slice(0, 5);
     const trade = pool[Math.floor(Math.random() * pool.length)];
     const timestamp = new Date().toLocaleTimeString('en-GB');
-    
     const size = Math.floor(Math.random() * 90000) + 10000;
     const side = Math.random() > 0.5 ? "BUY YES" : "SELL NO";
     const userHash = "0x" + Math.random().toString(16).substring(2, 6) + "..." + Math.random().toString(16).substring(2, 4);
     
-    whaleHistory.unshift({ id: trade.id, market: trade.market, time: timestamp, size, side, user: userHash });
+    // Include the URL in the simulated payload
+    whaleHistory.unshift({ id: trade.id, market: trade.market, time: timestamp, size, side, user: userHash, url: trade.url });
     if (whaleHistory.length > 15) whaleHistory.pop(); 
     
     renderWhaleBoard();
@@ -386,7 +405,6 @@
     if (activeFilters.focusId) {
       displayHistory = whaleHistory.filter(t => String(t.id) === activeFilters.focusId);
     }
-
     if (displayHistory.length === 0) {
       whaleBoard.innerHTML = "\n  [ AWAITING EPOCH ANOMALIES FOR ISOLATION... ]";
       return;
@@ -394,9 +412,10 @@
 
     const output = displayHistory.slice(0, 8).map(trade => {
       const activeClass = activeFilters.focusId === String(trade.id) ? 'active-focus' : '';
+      const link = trade.url ? `<a href="${trade.url}" target="_blank" class="external-link">[↗]</a>` : '';
       return `<div class="whale-row">` +
              `[${trade.time}] <span class="whale-amt">$${(trade.size/1000).toFixed(1)}k</span> ${trade.side}\n` +
-             `<span class="interactive-bet ${activeClass}" data-id="${trade.id}">${trade.market}</span>\n` +
+             `${link}<span class="interactive-bet ${activeClass}" data-id="${trade.id}">${trade.market}</span>\n` +
              `<span class="whale-meta">USER: ${trade.user}</span></div>`;
     }).join('');
     

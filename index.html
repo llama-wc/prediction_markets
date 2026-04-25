@@ -9,9 +9,9 @@
     --bg: #050505;
     --text: #737aa2;
     --highlight: #c0caf5;
-    --up: #39ff14;     /* Neon Terminal Green */
-    --down: #ff003c;   /* Sharp Red */
-    --cyan: #00ffff;   /* Cyberpunk Cyan */
+    --up: #39ff14;     
+    --down: #ff003c;   
+    --cyan: #00ffff;   
     --dim: #1f2335;
     --border: #16161e;
   }
@@ -20,14 +20,13 @@
     background-color: var(--bg);
     color: var(--text);
     font-family: 'JetBrains Mono', 'Courier New', monospace;
-    font-size: 11px; /* Compressed for maximum data density */
+    font-size: 11px; 
     margin: 0;
     padding: 16px;
     font-weight: 600;
-    overflow-x: hidden; /* Ban horizontal scrolling */
+    overflow-x: hidden; 
   }
 
-  /* Scanline Overlay for CRT Vibe */
   body::after {
     content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px);
@@ -42,11 +41,9 @@
   .grid-three { display: flex; flex-direction: column; gap: 24px; }
   pre { margin: 0; white-space: pre; overflow: hidden; }
 
-  /* Table Geometry */
   .row { display: flex; align-items: center; padding: 4px 0; border-bottom: 1px dashed var(--border); }
   .row:hover { background: rgba(0, 255, 255, 0.05); }
   
-  /* Hard-coded column widths to force mobile alignment */
   .col-prob { width: 35px; color: var(--highlight); font-weight: bold; }
   .col-vol { width: 55px; color: var(--text); }
   .col-spark { width: 50px; color: var(--cyan); letter-spacing: -1px; }
@@ -55,7 +52,7 @@
     flex-grow: 1; 
     white-space: nowrap; 
     overflow: hidden; 
-    text-overflow: ellipsis; /* Truncates long text with ... */
+    text-overflow: ellipsis; 
     color: var(--highlight);
     cursor: pointer;
   }
@@ -65,10 +62,6 @@
   .shift-up { color: var(--up); }
   .shift-down { color: var(--down); }
   
-  /* The Jitter Class */
-  .jitter { display: inline-block; width: 7px; text-align: center; }
-  .jitter-flash { color: #fff; text-shadow: 0 0 4px #fff; }
-
   .whale-row { border-left: 1px solid var(--dim); padding-left: 8px; margin-bottom: 8px; font-size: 10px; }
   .whale-amt { color: var(--up); font-weight: bold; }
 </style>
@@ -108,13 +101,12 @@
   let marketData = [];
   const DATA_URL = "./market-data.json";
 
-  // Creates the high-density inline Braille graphs
   function getBrailleSparkline(history) {
     if(!history || history.length === 0) return "⠒⠒⠒⠒⠒";
     const min = Math.min(...history);
     const max = Math.max(...history);
     const range = (max - min) || 1;
-    const brailleChars = ['⣀', '⠤', '⠒', '⠉']; // 4 height levels
+    const brailleChars = ['⣀', '⠤', '⠒', '⠉']; 
     
     return history.slice(-5).map(val => {
       const normalized = Math.floor(((val - min) / range) * 3);
@@ -152,11 +144,12 @@
       const spark = getBrailleSparkline(bet.history);
       const link = `<a href="${bet.url}" target="_blank" class="external-link">[↗]</a>`;
       const volInt = Math.floor(bet.vol);
+      const volDec = Math.floor((bet.vol % 1) * 10); // Extract first decimal cleanly
       
       volHtml += `<div class="row">
         <div class="col-prob">${String(bet.prob).padStart(2, '0')}%</div>
         <div class="col-spark">${spark}</div>
-        <div class="col-vol">$${volInt}.<span class="jitter">0</span>M</div>
+        <div class="col-vol">$${volInt}.${volDec}M</div>
         <div class="col-market">${link}${bet.market}</div>
       </div>`;
     });
@@ -182,18 +175,6 @@
     momentumBoard.innerHTML = momHtml;
   }
 
-  // --- HFT JITTER ENGINE ---
-  // Randomly flips decimal points to simulate high-frequency order book processing
-  setInterval(() => {
-    document.querySelectorAll('.jitter').forEach(el => {
-      if(Math.random() > 0.85) {
-        el.innerText = Math.floor(Math.random() * 9);
-        el.classList.add('jitter-flash');
-        setTimeout(() => el.classList.remove('jitter-flash'), 50);
-      }
-    });
-  }, 75);
-
   // --- WHALE WATCH SIMULATOR ---
   function pushWhaleOrder() {
     if (marketData.length === 0) return;
@@ -205,15 +186,15 @@
     
     const row = document.createElement('div');
     row.className = 'whale-row';
-    row.innerHTML = `[${time}] <span class="whale-amt">$${size}.<span class="jitter">0</span>k</span> ${side} <br> <span style="color:var(--dim)">USR:${user} -></span> ${trade.market}`;
+    row.innerHTML = `[${time}] <span class="whale-amt">$${size}.0k</span> ${side} <br> <span style="color:var(--dim)">USR:${user} -></span> ${trade.market}`;
     
     whaleBoard.prepend(row);
     if (whaleBoard.children.length > 6) whaleBoard.lastChild.remove();
   }
 
   bootPipeline();
-  setInterval(bootPipeline, 60000); // Check Cron file every 60s
-  setInterval(pushWhaleOrder, 3500); // Push fake whale orders rapidly
+  setInterval(bootPipeline, 60000); 
+  setInterval(pushWhaleOrder, 3500); 
 </script>
 </body>
 </html>

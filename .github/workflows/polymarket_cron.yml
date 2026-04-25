@@ -1,0 +1,41 @@
+name: Polymarket 10-Minute ETL
+
+# Trigger the script every 10 minutes, and allow manual triggering
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+
+    # Crucial: Give the action permission to write back to your repository
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Execute Extraction Engine
+        run: python fetch_markets.py
+
+      - name: Commit and Push Static Data
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action Bot"
+          git add market-data.json
+          
+          # Only commit if the data actually changed to prevent empty commit errors
+          git diff --quiet && git diff --staged --quiet || (git commit -m "[AUTO] Update market-data.json" && git push)

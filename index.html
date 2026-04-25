@@ -316,11 +316,10 @@
     if (activeFilters.focusId && filteredData.length === 1) {
        const bet = filteredData[0];
        
-       // Render standard single row for Node A
-       volumeBoard.innerHTML = ` PROB | SENTIMENT  | LIQUIDITY | EVENT\n------+------------+-----------+-------------------------\n ${(String(bet.prob) + "%").padStart(4, ' ')} | ${generateProbBar(bet.prob)} | `$${bet.vol.toFixed(1)}M`.padStart(8, ' ')}  | <span class="interactive-bet active-focus" data-id="${bet.id}">${bet.market}</span>\n`;
+       // Render standard single row for Node A (SYNTAX FIXED HERE)
+       volumeBoard.innerHTML = ` PROB | SENTIMENT  | LIQUIDITY | EVENT\n------+------------+-----------+-------------------------\n ${(String(bet.prob) + "%").padStart(4, ' ')} | ${generateProbBar(bet.prob)} | ${`$${bet.vol.toFixed(1)}M`.padStart(8, ' ')}  | <span class="interactive-bet active-focus" data-id="${bet.id}">${bet.market}</span>\n`;
        
        // Render Square Chart in Node B
-       // (Uses fallback data if 'history' array from Python is too short)
        const plotData = bet.history && bet.history.length > 3 ? bet.history : [bet.prob-4, bet.prob-2, bet.prob, bet.prob+1, bet.prob, bet.prob];
        momentumBoard.innerHTML = renderSquareChart(plotData, bet.market);
        return;

@@ -1,0 +1,287 @@
+[
+  {
+    "id": 16167,
+    "category": "MACRO",
+    "market": "MicroStrategy sells any Bitcoin by ___ ?",
+    "prob": 0,
+    "vol": 22.25,
+    "shift": 0,
+    "epoch_velocity": 0,
+    "history": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "last_updated": "2026-04-25T18:07:35.498738"
+  },
+  {
+    "id": 23784,
+    "category": "MACRO",
+    "market": "What will happen before GTA VI?",
+    "prob": 52,
+    "vol": 21.37,
+    "shift": 0,
+    "epoch_velocity": 0,
+    "history": [
+      52,
+      52,
+      52,
+      52,
+      52,
+      52,
+      52
+    ],
+    "last_updated": "2026-04-25T18:07:35.498891"
+  },
+  {
+    "id": 17725,
+    "category": "MACRO",
+    "market": "Starmer out by...?",
+    "prob": 0,
+    "vol": 15.6,
+    "shift": 0,
+    "epoch_velocity": 0,
+    "history": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "last_updated": "2026-04-25T18:07:35.498792"
+  },
+  {
+    "id": 23792,
+    "category": "MACRO",
+    "market": "GTA VI released before June 2026?",
+    "prob": 0,
+    "vol": 13.83,
+    "shift": 0,
+    "epoch_velocity": 0,
+    "history": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "last_updated": "2026-04-25T18:07:35.498902"
+  },
+  {
+    "id": 17858,
+    "category": "MACRO",
+    "market": "Ukraine recognizes Russian sovereignty over its territory by...?",
+    "prob": 0,
+    "vol": 2.52,
+    "shift": 0,
+    "epoch_velocity": 0,
+    "history": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "last_updated": "2026-04-25T18:07:35.498797"
+  },
+  {
+    "id": 18576,
+    "category": "MACRO",
+    "market": "Ukraine election held by...?",
+    "prob": 0,
+    "vol": 2.16,
+    "shift": 0,
+    "epoch_velocity": 0,
+    "history": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "last_updated": "2026-04-25T18:07:35.498815"
+  },
+  {
+    "id": 22448,
+    "category": "MACRO",
+    "market": "Taylor Swift pregnant in 2025?",
+    "prob": 0,
+    "vol": 2.02,
+    "shift": 0,
+    "epoch_velocity": 0,
+    "history": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "last_updated": "2026-04-25T18:07:35.498877"
+  },
+  {
+    "id": 16263,
+    "category": "MACRO",
+    "market": "Macron out by...?",
+    "prob": 0,
+    "vol": 1.93,
+    "shift": 0,
+    "epoch_velocity": 0,
+    "history": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "last_updated": "2026-04-25T18:07:35.498767"
+  },
+  {
+    "id": 16183,
+    "category": "MACRO",
+    "market": "Kraken IPO by ___ ?",
+    "prob": 0,
+    "vol": 1.54,
+    "shift": 0,
+    "epoch_velocity": 0,
+    "history": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "last_updated": "2026-04-25T18:07:35.498759"
+  },
+  {
+    "id": 18558,
+    "category": "MACRO",
+    "market": "Ukraine election called by...?",
+    "prob": 0,
+    "vol": 1.48,
+    "shift": 0,
+    "epoch_velocity": 0,
+    "history": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "last_updated": "2026-04-25T18:07:35.498804"
+  },
+  {
+    "id": 18571,
+    "category": "MACRO",
+    "market": "Will any country leave NATO by...?",
+    "prob": 0,
+    "vol": 0.86,
+    "shift": 0,
+    "epoch_velocity": 0,
+    "history": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "last_updated": "2026-04-25T18:07:35.498810"
+  },
+  {
+    "id": 16423,
+    "category": "MACRO",
+    "market": "UK election called by...?",
+    "prob": 0,
+    "vol": 0.74,
+    "shift": 0,
+    "epoch_velocity": 0,
+    "history": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "last_updated": "2026-04-25T18:07:35.498773"
+  },
+  {
+    "id": 17549,
+    "category": "MACRO",
+    "market": "NATO/EU troops fighting in Ukraine by...?",
+    "prob": 0,
+    "vol": 0.28,
+    "shift": 0,
+    "epoch_velocity": 0,
+    "history": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "last_updated": "2026-04-25T18:07:35.498787"
+  },
+  {
+    "id": 17526,
+    "category": "MACRO",
+    "market": "China x India military clash by...?",
+    "prob": 0,
+    "vol": 0.23,
+    "shift": 0,
+    "epoch_velocity": 0,
+    "history": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "last_updated": "2026-04-25T18:07:35.498779"
+  },
+  {
+    "id": 22527,
+    "category": "MACRO",
+    "market": "Mike Johnson out as Speaker by...?",
+    "prob": 0,
+    "vol": 0.1,
+    "shift": 0,
+    "epoch_velocity": 0,
+    "history": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "last_updated": "2026-04-25T18:07:35.498885"
+  }
+]

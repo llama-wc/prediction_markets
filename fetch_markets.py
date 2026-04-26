@@ -9,6 +9,19 @@ from datetime import datetime
 GAMMA_API = "https://gamma-api.polymarket.com/events?limit=15&active=true&closed=false"
 DATA_FILE = "market-data.json"
 
+def get_market_density(clob_token):
+    """Hits the Central Limit Order Book to count active limit orders."""
+    if not clob_token: return 0
+    try:
+        book_url = f"https://clob.polymarket.com/book?token_id={clob_token}"
+        res = requests.get(book_url, timeout=5)
+        if res.status_code == 200:
+            data = res.json()
+            return len(data.get('bids', [])) + len(data.get('asks', []))
+    except:
+        pass
+    return 0
+
 def fetch_and_process():
     old_data = {}
     if os.path.exists(DATA_FILE):
@@ -43,7 +56,6 @@ def fetch_and_process():
             if not market_id: continue
 
             title = market.get('question', 'Unknown Market')
-            # THE NEW EXTRACTION: Grab the rules/context
             description = market.get('description', 'No market rules provided.')
             volume = float(market.get('volume', 0)) / 1000000
 
@@ -61,6 +73,7 @@ def fetch_and_process():
             if token_match:
                 clob_token = token_match.group(1)
 
+            # 1. Fetch History
             history = []
             if clob_token:
                 try:
@@ -69,7 +82,6 @@ def fetch_and_process():
                     if clob_res.status_code == 200:
                         hist_data = clob_res.json().get('history', [])
                         if hist_data:
-                            # THE FLEX: Grab 30 data points instead of 7 for a gorgeous chart
                             step = max(1, len(hist_data) // 30)
                             history = [int(float(pt['p']) * 100) for pt in hist_data[::step][-30:]]
                 except Exception:
@@ -79,13 +91,26 @@ def fetch_and_process():
             if not history or len(set(history)) <= 1:
                 history = []
                 walk = prob
-                for _ in range(29): # Generate smooth synthetic curves for brand new markets
+                for _ in range(29): 
                     walk = max(1, min(99, walk + random.randint(-4, 4)))
                     history.insert(0, walk)
                 history.append(prob)
                 
             history[-1] = prob
             epoch_velocity = prob - history[-2] if len(history) > 1 else 0
+
+            # 2. Fetch Order Book Density
+            depth = get_market_density(clob_token)
+            time.sleep(0.1)
+            
+            consensus = "LOW"
+            whale_risk = "HIGH"
+            if depth > 200:
+                consensus = "HIGH"
+                whale_risk = "LOW"
+            elif depth > 50:
+                consensus = "MEDIUM"
+                whale_risk = "MEDIUM"
 
             processed_data.append({
                 "id": market_id,
@@ -96,6 +121,9 @@ def fetch_and_process():
                 "vol": round(volume, 2),
                 "epoch_velocity": epoch_velocity,
                 "history": history,
+                "depth": depth,
+                "consensus": consensus,
+                "whale_risk": whale_risk,
                 "url": url,
                 "last_updated": datetime.utcnow().isoformat()
             })

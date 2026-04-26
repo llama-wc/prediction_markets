@@ -6,105 +6,99 @@
 <title>ALPHA_TERMINAL // POLYMARKET</title>
 <style>
   :root {
-    --bg: #050505;
-    --text: #737aa2;
-    --highlight: #c0caf5;
-    --up: #39ff14;     
-    --down: #ff003c;   
-    --cyan: #00ffff;   
-    --dim: #1f2335;
-    --border: #16161e;
+    --bg: #000000;
+    --text: #71717a; /* Zinc 500 */
+    --data: #ffffff; /* Pure White */
+    --up: #10b981;
+    --down: #ef4444;
+    --border: #27272a;
   }
 
   body {
-    background-color: var(--bg);
+    background: var(--bg); 
     color: var(--text);
     font-family: 'JetBrains Mono', 'Courier New', monospace;
-    font-size: 11px; 
-    margin: 0;
+    font-size: 12px; 
+    margin: 0; 
     padding: 16px;
-    font-weight: 600;
-    overflow-x: hidden; 
+    -webkit-font-smoothing: antialiased;
   }
 
-  body::after {
-    content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px);
-    pointer-events: none; z-index: 999;
+  h1 { font-size: 16px; color: var(--data); margin: 0 0 4px 0; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;}
+  .status { font-size: 10px; color: var(--text); margin-bottom: 24px; text-transform: uppercase;}
+
+  /* Brutalist Filters */
+  .filters { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 24px;}
+  .btn { 
+    background: transparent; color: var(--text); border: 1px solid var(--border); 
+    padding: 6px 12px; font-size: 10px; font-weight: bold; cursor: pointer; 
+    white-space: nowrap; text-transform: uppercase;
+  }
+  .btn:hover { border-color: var(--text); }
+  .btn.active { background: var(--data); color: var(--bg); border-color: var(--data); }
+
+  .panel-title { 
+    font-size: 11px; color: var(--text); border-bottom: 1px solid var(--border); 
+    padding-bottom: 6px; margin: 0 0 12px 0; font-weight: bold; letter-spacing: 1px;
   }
 
-  header { border-bottom: 1px solid var(--dim); padding-bottom: 12px; margin-bottom: 16px; }
-  h1 { margin: 0; font-size: 1.2rem; color: var(--cyan); letter-spacing: 2px; text-shadow: 0 0 5px rgba(0,255,255,0.3); }
-  .status { font-size: 0.7rem; margin-top: 4px; color: var(--up); }
-  h2 { font-size: 0.8rem; color: var(--highlight); margin-bottom: 12px; border-left: 2px solid var(--cyan); padding-left: 6px; }
-
-  .controls { display: flex; gap: 40px; border-bottom: 1px dashed var(--border); padding-bottom: 12px; margin-bottom: 24px; overflow-x: auto; }
-  .control-group { display: flex; gap: 12px; align-items: center; }
-  .label { font-size: 0.7rem; color: var(--dim); font-weight: bold;}
-
-  button.filter-btn { 
-    background: transparent; color: var(--text); border: none; 
-    font-family: inherit; font-size: 0.75rem; cursor: pointer; padding: 0; 
+  /* Strict CSS Grid Alignment */
+  .grid-header { 
+    display: grid; grid-template-columns: 35px 45px 50px 1fr; gap: 12px; 
+    font-size: 10px; color: var(--text); margin-bottom: 8px; font-weight: bold;
   }
-  button.filter-btn:hover { color: var(--highlight); }
-  button.filter-btn.active { color: var(--cyan); text-decoration: underline; text-underline-offset: 4px; }
-
-  .grid-three { display: flex; flex-direction: column; gap: 24px; }
-  pre { margin: 0; white-space: pre; overflow: hidden; }
-
-  .row { display: flex; align-items: center; padding: 4px 0; border-bottom: 1px dashed var(--border); }
-  .row:hover { background: rgba(0, 255, 255, 0.05); }
-  
-  .col-prob { width: 35px; color: var(--highlight); font-weight: bold; }
-  .col-vol { width: 55px; color: var(--text); }
-  .col-spark { width: 50px; color: var(--cyan); letter-spacing: -1px; }
-  .col-vel { width: 45px; }
-  .col-market { 
-    flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--highlight); cursor: pointer;
+  .row { 
+    display: grid; grid-template-columns: 35px 45px 50px 1fr; gap: 12px; 
+    padding: 10px 0; border-bottom: 1px dashed var(--border); align-items: center; 
   }
+  .row:hover { background: rgba(255, 255, 255, 0.05); }
 
-  .external-link { color: var(--dim); text-decoration: none; margin-right: 4px; }
-  .external-link:hover { color: var(--cyan); }
+  /* Data Elements */
+  .prob { color: var(--data); font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; }
+  .spark { color: var(--data); font-size: 12px; letter-spacing: 1px; }
+  .vol { color: var(--text); font-variant-numeric: tabular-nums;}
+  .market { color: var(--data); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .market a { color: inherit; text-decoration: none; }
+  .market a:hover { text-decoration: underline; }
+
+  .vel { font-weight: 700; font-size: 13px; font-variant-numeric: tabular-nums;}
   .shift-up { color: var(--up); }
   .shift-down { color: var(--down); }
-  
-  .whale-row { border-left: 1px solid var(--dim); padding-left: 8px; margin-bottom: 8px; font-size: 10px; }
-  .whale-amt { color: var(--up); font-weight: bold; }
+
+  .grid-three { display: flex; flex-direction: column; gap: 32px; }
+  .whale-row { font-size: 11px; padding: 6px 0; border-bottom: 1px dashed var(--border); }
 </style>
 </head>
 <body>
 
 <div class="terminal">
   <header>
-    <h1>SYS.TERMINAL // POLYMARKET</h1>
-    <div class="status" id="sys-status">CONNECTION_ESTABLISHED // AWAITING PAYLOAD...</div>
+    <h1>ALPHA_TERMINAL</h1>
+    <div class="status" id="sys-status">BOOTING PIPELINE...</div>
   </header>
 
-  <nav class="controls">
-    <div class="control-group" id="dynamic-categories">
-      </div>
-    
-    <div class="control-group">
-      <span class="label">MIN_LIQ:</span>
-      <button class="filter-btn active" data-filter="liquidity" data-val="0">[ ANY ]</button>
-      <button class="filter-btn" data-filter="liquidity" data-val="1">[ > $1M ]</button>
-      <button class="filter-btn" data-filter="liquidity" data-val="5">[ > $5M ]</button>
+  <div class="filters" id="dynamic-categories">
     </div>
-  </nav>
 
   <main class="grid-three">
     <section>
-      <h2>[ LIQUIDITY_NODE ]</h2>
+      <div class="panel-title">LIQUIDITY_NODE</div>
+      <div class="grid-header">
+        <div>PRB</div><div>TRND</div><div>VOL</div><div>ASSET</div>
+      </div>
       <div id="volume-board"></div>
     </section>
     
     <section>
-      <h2>[ VELOCITY_NODE ]</h2>
+      <div class="panel-title">VELOCITY_NODE</div>
+      <div class="grid-header">
+        <div>24H_Δ</div><div>PRB</div><div></div><div>ASSET</div>
+      </div>
       <div id="momentum-board"></div>
     </section>
 
     <section>
-      <h2>[ WHALE_ORDER_FLOW ]</h2>
+      <div class="panel-title">WHALE_ORDER_FLOW</div>
       <div id="whale-board"></div>
     </section>
   </main>
@@ -118,19 +112,20 @@
   const categoryContainer = document.getElementById('dynamic-categories');
 
   let marketData = [];
-  let activeFilters = { category: "ALL", liquidity: 0 };
+  let activeCategory = "ALL";
   const DATA_URL = "./market-data.json";
 
-  function getBrailleSparkline(history) {
-    if(!history || history.length === 0) return "⠒⠒⠒⠒⠒";
+  // Replaced Braille with highly readable Block Elements
+  function getBlockSparkline(history) {
+    if(!history || history.length === 0) return "—";
     const min = Math.min(...history);
     const max = Math.max(...history);
     const range = (max - min) || 1;
-    const brailleChars = ['⣀', '⠤', '⠒', '⠉']; 
+    const blocks = ['_', '▃', '▆', '█']; 
     
-    return history.slice(-5).map(val => {
-      const normalized = Math.floor(((val - min) / range) * 3);
-      return brailleChars[normalized];
+    return history.slice(-4).map(val => {
+      const normalized = Math.floor(((val - min) / range) * 3.99);
+      return blocks[normalized];
     }).join('');
   }
 
@@ -141,38 +136,30 @@
       
       marketData = await response.json();
       const timeString = new Date().toISOString().split('T')[1].substring(0,8);
-      statusDisplay.innerHTML = `LIVE // LAST_SYNC: ${timeString} UTC // 10M_EPOCH_ACTIVE`;
+      statusDisplay.innerHTML = `LIVE_SYNC: ${timeString} UTC`;
       
       buildDynamicSlicers();
       renderDashboards();
     } catch (error) {
-      statusDisplay.innerHTML = `ERR: PIPELINE SEVERED. AWAITING GITHUB ACTION.`;
+      statusDisplay.innerHTML = `ERR: PIPELINE SEVERED.`;
     }
   }
 
   function buildDynamicSlicers() {
-    // Extract unique categories from the live payload
-    const uniqueCategories = [...new Set(marketData.map(item => item.category))].filter(Boolean).slice(0, 4);
-    
-    let html = `<span class="label">TAG:</span><button class="filter-btn ${activeFilters.category === 'ALL' ? 'active' : ''}" data-filter="category" data-val="ALL">[ ALL ]</button>`;
+    const uniqueCategories = [...new Set(marketData.map(item => item.category))].filter(Boolean).slice(0, 5);
+    let html = `<button class="btn ${activeCategory === 'ALL' ? 'active' : ''}" data-val="ALL">ALL</button>`;
     
     uniqueCategories.forEach(cat => {
-      const isActive = activeFilters.category === cat ? 'active' : '';
-      html += `<button class="filter-btn ${isActive}" data-filter="category" data-val="${cat}">[ ${cat} ]</button>`;
+      const isActive = activeCategory === cat ? 'active' : '';
+      html += `<button class="btn ${isActive}" data-val="${cat}">${cat}</button>`;
     });
     
     categoryContainer.innerHTML = html;
 
-    // Re-bind click events
-    document.querySelectorAll('.filter-btn').forEach(btn => {
+    document.querySelectorAll('.btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const filterType = e.target.dataset.filter;
-        const filterVal = e.target.dataset.val;
-
-        document.querySelectorAll(`.filter-btn[data-filter="${filterType}"]`).forEach(b => b.classList.remove('active'));
-        e.target.classList.add('active');
-
-        activeFilters[filterType] = filterType === 'liquidity' ? parseFloat(filterVal) : filterVal;
+        activeCategory = e.target.dataset.val;
+        buildDynamicSlicers();
         renderDashboards();
       });
     });
@@ -181,54 +168,42 @@
   function renderDashboards() {
     if (marketData.length === 0) return;
 
-    let filteredData = marketData.filter(bet => {
-      const matchCategory = activeFilters.category === "ALL" || bet.category === activeFilters.category;
-      const matchLiquidity = bet.vol >= activeFilters.liquidity;
-      return matchCategory && matchLiquidity;
-    });
-
+    let filteredData = marketData.filter(bet => activeCategory === "ALL" || bet.category === activeCategory);
     let volSorted = [...filteredData].sort((a, b) => b.vol - a.vol).slice(0, 7);
     let momSorted = [...filteredData].sort((a, b) => Math.abs(b.epoch_velocity || 0) - Math.abs(a.epoch_velocity || 0)).slice(0, 7);
 
     // --- RENDER LIQUIDITY ---
-    let volHtml = `<div class="row" style="color:var(--dim); border:none;">
-      <div class="col-prob">PRB</div><div class="col-spark">TREND</div><div class="col-vol">VOL</div><div class="col-market">ASSET</div>
-    </div>`;
-    
-    if (volSorted.length === 0) volHtml += `<div class="row"><div class="col-market" style="color:var(--dim)">[ NO DATA MATCHES SLICER ]</div></div>`;
+    let volHtml = '';
+    if (volSorted.length === 0) volHtml = `<div class="row"><div style="grid-column: 1 / -1; color:var(--text)">NO DATA</div></div>`;
     
     volSorted.forEach(bet => {
-      const spark = getBrailleSparkline(bet.history);
-      const link = `<a href="${bet.url}" target="_blank" class="external-link">[↗]</a>`;
+      const spark = getBlockSparkline(bet.history);
       const volInt = Math.floor(bet.vol);
       const volDec = Math.floor((bet.vol % 1) * 10);
       
       volHtml += `<div class="row">
-        <div class="col-prob">${String(bet.prob).padStart(2, '0')}%</div>
-        <div class="col-spark">${spark}</div>
-        <div class="col-vol">$${volInt}.${volDec}M</div>
-        <div class="col-market">${link}<a href="${bet.url}" target="_blank" style="color:inherit; text-decoration:none;">${bet.market}</a></div>
+        <div class="prob">${String(bet.prob).padStart(2, '0')}</div>
+        <div class="spark">${spark}</div>
+        <div class="vol">$${volInt}.${volDec}M</div>
+        <div class="market"><a href="${bet.url}" target="_blank">${bet.market}</a></div>
       </div>`;
     });
     volumeBoard.innerHTML = volHtml;
 
     // --- RENDER VELOCITY ---
-    let momHtml = `<div class="row" style="color:var(--dim); border:none;">
-      <div class="col-vel">24H_Δ</div><div class="col-prob">PRB</div><div class="col-market">ASSET</div>
-    </div>`;
-    
-    if (momSorted.length === 0) momHtml += `<div class="row"><div class="col-market" style="color:var(--dim)">[ NO DATA MATCHES SLICER ]</div></div>`;
+    let momHtml = '';
+    if (momSorted.length === 0) momHtml = `<div class="row"><div style="grid-column: 1 / -1; color:var(--text)">NO DATA</div></div>`;
 
     momSorted.forEach(bet => {
       const vel = bet.epoch_velocity || 0;
       const shiftIcon = vel >= 0 ? '▲' : '▼';
       const shiftClass = vel >= 0 ? 'shift-up' : 'shift-down';
-      const link = `<a href="${bet.url}" target="_blank" class="external-link">[↗]</a>`;
       
       momHtml += `<div class="row">
-        <div class="col-vel ${shiftClass}">${shiftIcon}${Math.abs(vel)}%</div>
-        <div class="col-prob">${String(bet.prob).padStart(2, '0')}%</div>
-        <div class="col-market">${link}<a href="${bet.url}" target="_blank" style="color:inherit; text-decoration:none;">${bet.market}</a></div>
+        <div class="vel ${shiftClass}">${shiftIcon}${Math.abs(vel)}</div>
+        <div class="prob">${String(bet.prob).padStart(2, '0')}</div>
+        <div></div>
+        <div class="market"><a href="${bet.url}" target="_blank">${bet.market}</a></div>
       </div>`;
     });
     momentumBoard.innerHTML = momHtml;
@@ -243,14 +218,14 @@
     const time = new Date().toISOString().split('T')[1].substring(0,8);
     const size = Math.floor(Math.random() * 90) + 10;
     const side = Math.random() > 0.5 ? "BUY YES" : "SELL NO";
-    const user = "0x" + Math.random().toString(16).substring(2, 8);
+    const user = "0x" + Math.random().toString(16).substring(2, 6);
     
     const row = document.createElement('div');
     row.className = 'whale-row';
-    row.innerHTML = `[${time}] <span class="whale-amt">$${size}.0k</span> ${side} <br> <span style="color:var(--dim)">USR:${user} -></span> <a href="${trade.url}" target="_blank" style="color:var(--text); text-decoration:none;">${trade.market}</a>`;
+    row.innerHTML = `<span style="color:var(--text)">[${time}]</span> <span style="color:var(--up); font-weight:bold;">$${size}.0k</span> ${side} &nbsp;|&nbsp; <a href="${trade.url}" target="_blank" style="color:var(--data); text-decoration:none;">${trade.market}</a>`;
     
     whaleBoard.prepend(row);
-    if (whaleBoard.children.length > 6) whaleBoard.lastChild.remove();
+    if (whaleBoard.children.length > 5) whaleBoard.lastChild.remove();
   }
 
   bootPipeline();

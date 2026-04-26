@@ -16,6 +16,7 @@
     --border: #27272a;
     --up: #10b981;
     --down: #ef4444;
+    --med: #f59e0b;
   }
 
   body {
@@ -25,7 +26,6 @@
     display: flex; flex-direction: column; overflow: hidden;
   }
 
-  /* Header & Slicers */
   header { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 16px; flex-shrink: 0;}
   h1 { margin: 0; font-size: 18px; color: var(--data); font-weight: 800; letter-spacing: -0.5px; }
   .status { font-size: 11px; font-family: monospace; color: var(--cyan); }
@@ -39,16 +39,11 @@
   .btn:hover { border-color: var(--text); }
   .btn.active { background: var(--data); color: var(--bg); border-color: var(--data); }
 
-  /* Master-Detail Grid */
   .dashboard-grid {
-    display: grid;
-    grid-template-columns: 380px 1fr;
-    gap: 16px;
-    height: 100%;
-    min-height: 0; /* allows children to scroll */
+    display: grid; grid-template-columns: 380px 1fr; gap: 16px; height: 100%; min-height: 0; 
   }
 
-  /* Left Side: The Screener */
+  /* Screener */
   .screener {
     background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
     display: flex; flex-direction: column; overflow: hidden;
@@ -72,7 +67,7 @@
   .r-vol { color: var(--text); font-size: 12px; font-variant-numeric: tabular-nums; }
   .r-title { color: var(--data); font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  /* Right Side: The Chart Engine */
+  /* Focus Node */
   .focus-node {
     background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
     display: flex; flex-direction: column; padding: 24px; overflow-y: auto;
@@ -82,7 +77,22 @@
   .focus-meta { font-size: 13px; color: var(--text); }
   .focus-prob-giant { font-size: 48px; font-weight: 800; color: var(--cyan); line-height: 1; text-align: right;}
   
-  .chart-container { width: 100%; height: 300px; margin-bottom: 24px; }
+  /* Diagnostics Bar */
+  .metrics-bar {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 24px;
+  }
+  .metric-box {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+    padding: 12px; display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .m-label { font-size: 10px; font-weight: 700; color: var(--text); text-transform: uppercase; margin-bottom: 6px;}
+  .m-val { font-size: 18px; font-weight: 800; color: var(--data); }
+  
+  .val-high { color: var(--up); }
+  .val-med { color: var(--med); }
+  .val-low { color: var(--down); }
+
+  .chart-container { width: 100%; height: 260px; margin-bottom: 24px; }
 
   .rules-box {
     background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px;
@@ -97,7 +107,6 @@
   }
   .trade-btn:hover { opacity: 0.9; }
 
-  /* Mobile Layout Fallback */
   @media (max-width: 900px) {
     .dashboard-grid { grid-template-columns: 1fr; overflow-y: auto; height: auto; }
     body { overflow-y: auto; height: auto; }
@@ -132,6 +141,21 @@
       <div class="focus-prob-giant" id="f-prob">0%</div>
     </div>
     
+    <div class="metrics-bar">
+      <div class="metric-box">
+        <div class="m-label">Active Limit Orders</div>
+        <div class="m-val" id="m-depth">0</div>
+      </div>
+      <div class="metric-box">
+        <div class="m-label">Crowd Consensus</div>
+        <div class="m-val" id="m-cons">LOW</div>
+      </div>
+      <div class="metric-box">
+        <div class="m-label">Whale Risk</div>
+        <div class="m-val" id="m-whale">HIGH</div>
+      </div>
+    </div>
+
     <div class="chart-container">
       <canvas id="mainChart"></canvas>
     </div>
@@ -170,11 +194,9 @@
       buildSlicers();
       renderScreener();
       
-      // Auto-select the first item if nothing is selected
       if (!activeAssetId && marketData.length > 0) {
         selectAsset(marketData[0].id);
       } else if (activeAssetId) {
-        // Refresh the chart data silently if it's already open
         selectAsset(activeAssetId);
       }
     } catch (error) {
@@ -217,7 +239,6 @@
     });
     screenerList.innerHTML = html;
 
-    // Bind clicks to open the chart
     document.querySelectorAll('.row').forEach(row => {
       row.addEventListener('click', () => selectAsset(row.dataset.id));
     });
@@ -228,30 +249,40 @@
     const bet = marketData.find(m => m.id === id);
     if(!bet) return;
 
-    renderScreener(); // Updates the highlight state
+    renderScreener(); 
     focusNode.style.display = 'flex';
 
-    // Populate Data
     document.getElementById('f-title').innerText = bet.market;
     document.getElementById('f-prob').innerText = `${bet.prob}%`;
     document.getElementById('f-meta').innerText = `$${bet.vol.toFixed(1)}M Vol • ${bet.category}`;
     document.getElementById('f-rules').innerHTML = bet.description;
     document.getElementById('f-link').href = bet.url;
 
+    // Diagnostics Mapping
+    const depthEl = document.getElementById('m-depth');
+    const consEl = document.getElementById('m-cons');
+    const whaleEl = document.getElementById('m-whale');
+    
+    depthEl.innerText = bet.depth || 0;
+    consEl.innerText = bet.consensus || "N/A";
+    whaleEl.innerText = bet.whale_risk || "N/A";
+
+    // Color code Consensus
+    consEl.className = 'm-val ' + (bet.consensus === 'HIGH' ? 'val-high' : bet.consensus === 'MEDIUM' ? 'val-med' : 'val-low');
+    // Inverse color code for Whale Risk
+    whaleEl.className = 'm-val ' + (bet.whale_risk === 'LOW' ? 'val-high' : bet.whale_risk === 'MEDIUM' ? 'val-med' : 'val-low');
+
     renderChart(bet.history);
   }
 
   function renderChart(historyData) {
     const ctx = document.getElementById('mainChart').getContext('2d');
-    
     if (chartInstance) { chartInstance.destroy(); }
 
-    // Create a smooth, synthetic X-axis
     const labels = historyData.map((_, i) => `T-${historyData.length - 1 - i}`);
 
-    // The Gradient Fill (The Flex)
-    let gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, 'rgba(6, 182, 212, 0.4)'); // Cyan
+    let gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(6, 182, 212, 0.4)'); 
     gradient.addColorStop(1, 'rgba(6, 182, 212, 0.0)');
 
     chartInstance = new Chart(ctx, {
@@ -266,7 +297,7 @@
           pointRadius: 0,
           pointHoverRadius: 6,
           fill: true,
-          tension: 0.1 // Slight curve to the line
+          tension: 0.1 
         }]
       },
       options: {
@@ -282,7 +313,7 @@
           }
         },
         scales: {
-          x: { display: false }, // Hide X axis for cleaner look
+          x: { display: false },
           y: { 
             display: true, 
             min: 0, max: 100, 

@@ -5,7 +5,8 @@ import time
 import re
 from datetime import datetime
 
-GAMMA_API = "https://gamma-api.polymarket.com/events?limit=15&active=true&closed=false"
+# --- THE FIX: Pointing to exact binary Markets instead of broad Events ---
+GAMMA_API = "https://gamma-api.polymarket.com/markets?limit=30&active=true&closed=false"
 DATA_FILE = "market-data.json"
 
 def fetch_and_process():
@@ -20,49 +21,41 @@ def fetch_and_process():
 
     headers = {"Accept": "application/json"}
     response = requests.get(GAMMA_API, headers=headers)
-    live_events = response.json()
+    live_markets = response.json()
 
     processed_data = []
 
-    for index, event in enumerate(live_events):
-        market_id = str(event.get('id', index))
-        title = event.get('title', 'Unknown')
-        volume = float(event.get('volume', 0)) / 1000000
-        url = f"https://polymarket.com/event/{event.get('slug', '')}"
+    for market in live_markets:
+        market_id = str(market.get('id', ''))
+        if not market_id: continue
+        
+        # Grab the specific binary question, not the umbrella event
+        title = market.get('question', 'Unknown Market')
+        volume = float(market.get('volume', 0)) / 1000000
+        
+        slug = market.get('slug', '')
+        url = f"https://polymarket.com/event/{slug}" if slug else "https://polymarket.com"
 
-        # Get Category
-        tags = event.get('tags', [])
+        tags = market.get('tags', [])
         category = "MACRO"
-        if tags:
-            first_tag = tags[0]
-            if isinstance(first_tag, dict) and 'label' in first_tag:
-                category = str(first_tag['label']).upper().replace(" ", "_")[:10]
-            elif isinstance(first_tag, str):
-                category = first_tag.upper().replace(" ", "_")[:10]
+        if tags and len(tags) > 0:
+            category = str(tags[0]).upper().replace(" ", "_")[:10]
 
         prob = 50
+        prices_raw = str(market.get('outcomePrices', '[]'))
+        found_prices = re.findall(r'\b(?:0\.\d+|1\.0+|0|1)\b', prices_raw)
+        if found_prices:
+            valid_prices = [float(p) for p in found_prices]
+            if valid_prices:
+                # Track the "YES" price specifically for accurate sentiment
+                prob = int(valid_prices[0] * 100)
+
         clob_token = None
-        markets = event.get('markets', [])
-        
-        if markets:
-            market_data = markets[0]
-            
-            # --- BULLETPROOF REGEX: PRICE EXTRACTION ---
-            # Hunts for any valid float or integer in the raw price string
-            prices_raw = str(market_data.get('outcomePrices', '[]'))
-            found_prices = re.findall(r'\b(?:0\.\d+|1\.0+|0|1)\b', prices_raw)
-            if found_prices:
-                valid_prices = [float(p) for p in found_prices]
-                prob = int(max(valid_prices) * 100)
+        tokens_raw = str(market.get('clobTokenIds', ''))
+        token_match = re.search(r'(0x[a-fA-F0-9]+)', tokens_raw)
+        if token_match:
+            clob_token = token_match.group(1)
 
-            # --- BULLETPROOF REGEX: CLOB TOKEN EXTRACTION ---
-            # Hunts strictly for the 0x token needed to pull the history chart
-            tokens_raw = str(market_data.get('clobTokenIds', ''))
-            token_match = re.search(r'(0x[a-fA-F0-9]+)', tokens_raw)
-            if token_match:
-                clob_token = token_match.group(1)
-
-        # Fetch CLOB History
         history = []
         if clob_token:
             try:
@@ -95,8 +88,8 @@ def fetch_and_process():
             "last_updated": datetime.utcnow().isoformat()
         })
 
-    # Sort by volume
-    processed_data = sorted(processed_data, key=lambda x: x['vol'], reverse=True)
+    # Sort by volume and keep the top 15 most active specific markets
+    processed_data = sorted(processed_data, key=lambda x: x['vol'], reverse=True)[:15]
 
     with open(DATA_FILE, 'w') as f:
         json.dump(processed_data, f, indent=2)

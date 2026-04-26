@@ -6,7 +6,6 @@ import random
 import re
 from datetime import datetime
 
-# --- BACK TO EVENTS: For perfect URL routing ---
 GAMMA_API = "https://gamma-api.polymarket.com/events?limit=15&active=true&closed=false"
 DATA_FILE = "market-data.json"
 
@@ -27,11 +26,9 @@ def fetch_and_process():
     processed_data = []
 
     for event in live_events:
-        # 1. Grab the correct routing URL from the parent event
         event_slug = event.get('slug', '')
         url = f"https://polymarket.com/event/{event_slug}" if event_slug else "https://polymarket.com"
 
-        # 2. Safely grab the Category from the parent event
         tags = event.get('tags', [])
         category = "MACRO"
         if tags:
@@ -41,12 +38,13 @@ def fetch_and_process():
             elif isinstance(first_tag, str):
                 category = first_tag.upper().replace(" ", "_")[:10]
 
-        # 3. THE FLATTENING ENGINE: Iterate through all sub-markets inside the event
         for market in event.get('markets', []):
             market_id = str(market.get('id', ''))
             if not market_id: continue
 
             title = market.get('question', 'Unknown Market')
+            # THE NEW EXTRACTION: Grab the rules/context
+            description = market.get('description', 'No market rules provided.')
             volume = float(market.get('volume', 0)) / 1000000
 
             prob = 50
@@ -55,7 +53,7 @@ def fetch_and_process():
             if found_prices:
                 valid_prices = [float(p) for p in found_prices]
                 if valid_prices:
-                    prob = int(valid_prices[0] * 100) # Extracts the YES token
+                    prob = int(valid_prices[0] * 100) 
 
             clob_token = None
             tokens_raw = str(market.get('clobTokenIds', ''))
@@ -66,24 +64,23 @@ def fetch_and_process():
             history = []
             if clob_token:
                 try:
-                    # Pulling real historical data
                     clob_url = f"https://clob.polymarket.com/prices-history?market={clob_token}&interval=1w&fidelity=60"
                     clob_res = requests.get(clob_url, timeout=5)
                     if clob_res.status_code == 200:
                         hist_data = clob_res.json().get('history', [])
                         if hist_data:
-                            step = max(1, len(hist_data) // 7)
-                            history = [int(float(pt['p']) * 100) for pt in hist_data[::step][-7:]]
+                            # THE FLEX: Grab 30 data points instead of 7 for a gorgeous chart
+                            step = max(1, len(hist_data) // 30)
+                            history = [int(float(pt['p']) * 100) for pt in hist_data[::step][-30:]]
                 except Exception:
                     pass
                 time.sleep(0.1) 
 
-            # Random walk seed if no history exists yet
             if not history or len(set(history)) <= 1:
                 history = []
                 walk = prob
-                for _ in range(6):
-                    walk = max(1, min(99, walk + random.randint(-3, 3)))
+                for _ in range(29): # Generate smooth synthetic curves for brand new markets
+                    walk = max(1, min(99, walk + random.randint(-4, 4)))
                     history.insert(0, walk)
                 history.append(prob)
                 
@@ -94,16 +91,16 @@ def fetch_and_process():
                 "id": market_id,
                 "category": category, 
                 "market": title,
+                "description": description,
                 "prob": prob,
                 "vol": round(volume, 2),
                 "epoch_velocity": epoch_velocity,
                 "history": history,
-                "url": url, # Applies the correct parent URL
+                "url": url,
                 "last_updated": datetime.utcnow().isoformat()
             })
 
-    # Sort the flattened array by volume to find the heaviest hitters
-    processed_data = sorted(processed_data, key=lambda x: x['vol'], reverse=True)[:15]
+    processed_data = sorted(processed_data, key=lambda x: x['vol'], reverse=True)[:25]
 
     with open(DATA_FILE, 'w') as f:
         json.dump(processed_data, f, indent=2)

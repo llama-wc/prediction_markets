@@ -2,7 +2,7 @@ import json
 import os
 import requests
 import time
-import ast
+import re
 from datetime import datetime
 
 GAMMA_API = "https://gamma-api.polymarket.com/events?limit=15&active=true&closed=false"
@@ -30,7 +30,7 @@ def fetch_and_process():
         volume = float(event.get('volume', 0)) / 1000000
         url = f"https://polymarket.com/event/{event.get('slug', '')}"
 
-        # --- FIX 1: SANITIZE CATEGORY TAGS ---
+        # Get Category
         tags = event.get('tags', [])
         category = "MACRO"
         if tags:
@@ -47,30 +47,20 @@ def fetch_and_process():
         if markets:
             market_data = markets[0]
             
-            # --- FIX 2: SANITIZE PRICES (IGNORE 100% GLITCHES) ---
-            prices_raw = market_data.get('outcomePrices', [])
-            if isinstance(prices_raw, str):
-                try: prices_raw = ast.literal_eval(prices_raw)
-                except: prices_raw = prices_raw.strip('][').replace('"', '').replace("'", "").split(',')
-            
-            if isinstance(prices_raw, list):
-                valid_prices = []
-                for p in prices_raw:
-                    try:
-                        val = float(p)
-                        if val < 0.99: # Ignore fully resolved/expired outcomes
-                            valid_prices.append(val)
-                    except: pass
-                if valid_prices:
-                    prob = int(max(valid_prices) * 100)
+            # --- BULLETPROOF REGEX: PRICE EXTRACTION ---
+            # Hunts for any valid float or integer in the raw price string
+            prices_raw = str(market_data.get('outcomePrices', '[]'))
+            found_prices = re.findall(r'\b(?:0\.\d+|1\.0+|0|1)\b', prices_raw)
+            if found_prices:
+                valid_prices = [float(p) for p in found_prices]
+                prob = int(max(valid_prices) * 100)
 
-            # Sanitize CLOB Tokens
-            tokens_raw = market_data.get('clobTokenIds', [])
-            if isinstance(tokens_raw, str):
-                try: tokens_raw = ast.literal_eval(tokens_raw)
-                except: tokens_raw = tokens_raw.strip('][').replace('"', '').replace("'", "").split(',')
-            if isinstance(tokens_raw, list) and len(tokens_raw) > 0:
-                clob_token = tokens_raw[0]
+            # --- BULLETPROOF REGEX: CLOB TOKEN EXTRACTION ---
+            # Hunts strictly for the 0x token needed to pull the history chart
+            tokens_raw = str(market_data.get('clobTokenIds', ''))
+            token_match = re.search(r'(0x[a-fA-F0-9]+)', tokens_raw)
+            if token_match:
+                clob_token = token_match.group(1)
 
         # Fetch CLOB History
         history = []
@@ -105,6 +95,7 @@ def fetch_and_process():
             "last_updated": datetime.utcnow().isoformat()
         })
 
+    # Sort by volume
     processed_data = sorted(processed_data, key=lambda x: x['vol'], reverse=True)
 
     with open(DATA_FILE, 'w') as f:

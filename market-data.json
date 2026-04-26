@@ -1,29 +1,219 @@
 [
   {
-    "id": "16167",
-    "category": "FINANCE",
-    "market": "MicroStrategy sells any Bitcoin by ___ ?",
-    "prob": 100,
-    "vol": 22.25,
+    "id": "540881",
+    "category": "MACRO",
+    "market": "GTA VI released before June 2026?",
+    "prob": 0,
+    "vol": 13.84,
     "epoch_velocity": 0,
     "history": [
-      100,
-      100,
-      100,
-      100,
-      100,
-      100,
-      100
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
     ],
-    "url": "https://polymarket.com/event/microstrategy-sell-any-bitcoin-in-2025",
-    "last_updated": "2026-04-26T00:16:23.081353"
+    "url": "https://polymarket.com/event/gta-vi-released-before-june-2026",
+    "last_updated": "2026-04-26T00:21:45.622924"
   },
   {
-    "id": "23784",
-    "category": "CULTURE",
-    "market": "What will happen before GTA VI?",
+    "id": "553828",
+    "category": "MACRO",
+    "market": "Will the Colorado Avalanche win the 2026 NHL Stanley Cup?",
+    "prob": 27,
+    "vol": 13.83,
+    "epoch_velocity": 0,
+    "history": [
+      27,
+      27,
+      27,
+      27,
+      27,
+      27,
+      27
+    ],
+    "url": "https://polymarket.com/event/will-the-colorado-avalanche-win-the-2026-nhl-stanley-cup",
+    "last_updated": "2026-04-26T00:21:45.623001"
+  },
+  {
+    "id": "540819",
+    "category": "MACRO",
+    "market": "Will Jesus Christ return before GTA VI?",
+    "prob": 48,
+    "vol": 11.13,
+    "epoch_velocity": 0,
+    "history": [
+      48,
+      48,
+      48,
+      48,
+      48,
+      48,
+      48
+    ],
+    "url": "https://polymarket.com/event/will-jesus-christ-return-before-gta-vi-665",
+    "last_updated": "2026-04-26T00:21:45.622896"
+  },
+  {
+    "id": "553838",
+    "category": "MACRO",
+    "market": "Will the Minnesota Wild win the 2026 NHL Stanley Cup?",
+    "prob": 2,
+    "vol": 8.91,
+    "epoch_velocity": 0,
+    "history": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "url": "https://polymarket.com/event/will-the-minnesota-wild-win-the-2026-nhl-stanley-cup",
+    "last_updated": "2026-04-26T00:21:45.623043"
+  },
+  {
+    "id": "553831",
+    "category": "MACRO",
+    "market": "Will the Los Angeles Kings win the 2026 NHL Stanley Cup?",
+    "prob": 0,
+    "vol": 7.27,
+    "epoch_velocity": 0,
+    "history": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "url": "https://polymarket.com/event/will-the-los-angeles-kings-win-the-2026-nhl-stanley-cup",
+    "last_updated": "2026-04-26T00:21:45.623024"
+  },
+  {
+    "id": "540844",
+    "category": "MACRO",
+    "market": "Will bitcoin hit $1m before GTA VI?",
+    "prob": 49,
+    "vol": 4.04,
+    "epoch_velocity": 0,
+    "history": [
+      49,
+      49,
+      49,
+      49,
+      49,
+      49,
+      49
+    ],
+    "url": "https://polymarket.com/event/will-bitcoin-hit-1m-before-gta-vi-872",
+    "last_updated": "2026-04-26T00:21:45.622917"
+  },
+  {
+    "id": "553851",
+    "category": "MACRO",
+    "market": "Will the Buffalo Sabres win the 2026 NHL Stanley Cup?",
+    "prob": 6,
+    "vol": 3.21,
+    "epoch_velocity": 0,
+    "history": [
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6
+    ],
+    "url": "https://polymarket.com/event/will-the-buffalo-sabres-win-the-2026-nhl-stanley-cup",
+    "last_updated": "2026-04-26T00:21:45.623086"
+  },
+  {
+    "id": "553830",
+    "category": "MACRO",
+    "market": "Will the Tampa Bay Lightning win the 2026 NHL Stanley Cup?",
+    "prob": 6,
+    "vol": 1.83,
+    "epoch_velocity": 0,
+    "history": [
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6
+    ],
+    "url": "https://polymarket.com/event/will-the-tampa-bay-lightning-win-the-2026-nhl-stanley-cup",
+    "last_updated": "2026-04-26T00:21:45.623014"
+  },
+  {
+    "id": "553849",
+    "category": "MACRO",
+    "market": "Will the Montreal Canadiens win the 2026 NHL Stanley Cup?",
+    "prob": 6,
+    "vol": 1.81,
+    "epoch_velocity": 0,
+    "history": [
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6
+    ],
+    "url": "https://polymarket.com/event/will-the-montreal-canadiens-win-the-2026-nhl-stanley-cup",
+    "last_updated": "2026-04-26T00:21:45.623072"
+  },
+  {
+    "id": "540843",
+    "category": "MACRO",
+    "market": "Will China invades Taiwan before GTA VI?",
+    "prob": 51,
+    "vol": 1.8,
+    "epoch_velocity": 0,
+    "history": [
+      51,
+      51,
+      51,
+      51,
+      51,
+      51,
+      51
+    ],
+    "url": "https://polymarket.com/event/will-china-invades-taiwan-before-gta-vi-716",
+    "last_updated": "2026-04-26T00:21:45.622910"
+  },
+  {
+    "id": "553829",
+    "category": "MACRO",
+    "market": "Will the Vegas Golden Knights win the 2026 NHL Stanley Cup?",
+    "prob": 4,
+    "vol": 1.66,
+    "epoch_velocity": 0,
+    "history": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "url": "https://polymarket.com/event/will-the-vegas-golden-knights-win-the-2026-nhl-stanley-cup",
+    "last_updated": "2026-04-26T00:21:45.623008"
+  },
+  {
+    "id": "540816",
+    "category": "MACRO",
+    "market": "Russia-Ukraine Ceasefire before GTA VI?",
     "prob": 52,
-    "vol": 21.39,
+    "vol": 1.61,
     "epoch_velocity": 0,
     "history": [
       52,
@@ -34,254 +224,64 @@
       52,
       52
     ],
-    "url": "https://polymarket.com/event/what-will-happen-before-gta-vi",
-    "last_updated": "2026-04-26T00:16:23.081497"
+    "url": "https://polymarket.com/event/russia-ukraine-ceasefire-before-gta-vi-554",
+    "last_updated": "2026-04-26T00:21:45.622856"
   },
   {
-    "id": "17725",
-    "category": "STARMER",
-    "market": "Starmer out by...?",
-    "prob": 100,
-    "vol": 15.72,
+    "id": "553837",
+    "category": "MACRO",
+    "market": "Will the Ottawa Senators win the 2026 NHL Stanley Cup?",
+    "prob": 0,
+    "vol": 1.49,
     "epoch_velocity": 0,
     "history": [
-      100,
-      100,
-      100,
-      100,
-      100,
-      100,
-      100
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
     ],
-    "url": "https://polymarket.com/event/starmer-out-in-2025",
-    "last_updated": "2026-04-26T00:16:23.081433"
+    "url": "https://polymarket.com/event/will-the-ottawa-senators-win-the-2026-nhl-stanley-cup",
+    "last_updated": "2026-04-26T00:21:45.623033"
   },
   {
-    "id": "23792",
-    "category": "CULTURE",
-    "market": "GTA VI released before June 2026?",
-    "prob": 99,
-    "vol": 13.84,
+    "id": "553852",
+    "category": "MACRO",
+    "market": "Will the Pittsburgh Penguins win the 2026 NHL Stanley Cup?",
+    "prob": 0,
+    "vol": 1.45,
     "epoch_velocity": 0,
     "history": [
-      99,
-      99,
-      99,
-      99,
-      99,
-      99,
-      99
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
     ],
-    "url": "https://polymarket.com/event/gta-vi-released-before-june-2026",
-    "last_updated": "2026-04-26T00:16:23.081507"
+    "url": "https://polymarket.com/event/will-the-pittsburgh-penguins-win-the-2026-nhl-stanley-cup",
+    "last_updated": "2026-04-26T00:21:45.623092"
   },
   {
-    "id": "17858",
-    "category": "WORLD",
-    "market": "Ukraine recognizes Russian sovereignty over its territory by...?",
-    "prob": 100,
-    "vol": 2.52,
+    "id": "553827",
+    "category": "MACRO",
+    "market": "Will the Dallas Stars win the 2026 NHL Stanley Cup?",
+    "prob": 8,
+    "vol": 1.42,
     "epoch_velocity": 0,
     "history": [
-      100,
-      100,
-      100,
-      100,
-      100,
-      100,
-      100
+      8,
+      8,
+      8,
+      8,
+      8,
+      8,
+      8
     ],
-    "url": "https://polymarket.com/event/ukraine-recognizes-russian-sovereignty-over-ukrainian-territory-in-2025",
-    "last_updated": "2026-04-26T00:16:23.081444"
-  },
-  {
-    "id": "18576",
-    "category": "WORLD",
-    "market": "Ukraine election held by...?",
-    "prob": 100,
-    "vol": 2.16,
-    "epoch_velocity": 0,
-    "history": [
-      100,
-      100,
-      100,
-      100,
-      100,
-      100,
-      100
-    ],
-    "url": "https://polymarket.com/event/ukraine-election-held-in-2025",
-    "last_updated": "2026-04-26T00:16:23.081464"
-  },
-  {
-    "id": "22448",
-    "category": "MUSIC",
-    "market": "Taylor Swift pregnant in 2025?",
-    "prob": 100,
-    "vol": 2.02,
-    "epoch_velocity": 0,
-    "history": [
-      100,
-      100,
-      100,
-      100,
-      100,
-      100,
-      100
-    ],
-    "url": "https://polymarket.com/event/taylor-swift-pregnant-in-2025",
-    "last_updated": "2026-04-26T00:16:23.081471"
-  },
-  {
-    "id": "16263",
-    "category": "FRANCE",
-    "market": "Macron out by...?",
-    "prob": 100,
-    "vol": 1.93,
-    "epoch_velocity": 0,
-    "history": [
-      100,
-      100,
-      100,
-      100,
-      100,
-      100,
-      100
-    ],
-    "url": "https://polymarket.com/event/macron-out-in-2025",
-    "last_updated": "2026-04-26T00:16:23.081391"
-  },
-  {
-    "id": "16183",
-    "category": "EXCHANGE",
-    "market": "Kraken IPO by ___ ?",
-    "prob": 100,
-    "vol": 1.54,
-    "epoch_velocity": 0,
-    "history": [
-      100,
-      100,
-      100,
-      100,
-      100,
-      100,
-      100
-    ],
-    "url": "https://polymarket.com/event/kraken-ipo-in-2025",
-    "last_updated": "2026-04-26T00:16:23.081378"
-  },
-  {
-    "id": "18558",
-    "category": "WORLD",
-    "market": "Ukraine election called by...?",
-    "prob": 100,
-    "vol": 1.48,
-    "epoch_velocity": 0,
-    "history": [
-      100,
-      100,
-      100,
-      100,
-      100,
-      100,
-      100
-    ],
-    "url": "https://polymarket.com/event/ukraine-election-called-in-2025",
-    "last_updated": "2026-04-26T00:16:23.081451"
-  },
-  {
-    "id": "18571",
-    "category": "WORLD",
-    "market": "Will any country leave NATO by...?",
-    "prob": 100,
-    "vol": 0.87,
-    "epoch_velocity": 0,
-    "history": [
-      100,
-      100,
-      100,
-      100,
-      100,
-      100,
-      100
-    ],
-    "url": "https://polymarket.com/event/will-any-country-leave-nato-in-2025",
-    "last_updated": "2026-04-26T00:16:23.081458"
-  },
-  {
-    "id": "16423",
-    "category": "STARMER",
-    "market": "UK election called by...?",
-    "prob": 100,
-    "vol": 0.74,
-    "epoch_velocity": 0,
-    "history": [
-      100,
-      100,
-      100,
-      100,
-      100,
-      100,
-      100
-    ],
-    "url": "https://polymarket.com/event/uk-election-called-by",
-    "last_updated": "2026-04-26T00:16:23.081402"
-  },
-  {
-    "id": "17549",
-    "category": "RUSSIA",
-    "market": "NATO/EU troops fighting in Ukraine by...?",
-    "prob": 100,
-    "vol": 0.28,
-    "epoch_velocity": 0,
-    "history": [
-      100,
-      100,
-      100,
-      100,
-      100,
-      100,
-      100
-    ],
-    "url": "https://polymarket.com/event/natoeu-troops-fighting-in-ukraine-in-2025",
-    "last_updated": "2026-04-26T00:16:23.081423"
-  },
-  {
-    "id": "17526",
-    "category": "INDIA",
-    "market": "China x India military clash by...?",
-    "prob": 100,
-    "vol": 0.23,
-    "epoch_velocity": 0,
-    "history": [
-      100,
-      100,
-      100,
-      100,
-      100,
-      100,
-      100
-    ],
-    "url": "https://polymarket.com/event/china-x-india-military-clash-by-december-31",
-    "last_updated": "2026-04-26T00:16:23.081413"
-  },
-  {
-    "id": "22527",
-    "category": "POLITICS",
-    "market": "Mike Johnson out as Speaker by...?",
-    "prob": 100,
-    "vol": 0.1,
-    "epoch_velocity": 0,
-    "history": [
-      100,
-      100,
-      100,
-      100,
-      100,
-      100,
-      100
-    ],
-    "url": "https://polymarket.com/event/mike-johnson-out-as-speaker-by",
-    "last_updated": "2026-04-26T00:16:23.081477"
+    "url": "https://polymarket.com/event/will-the-dallas-stars-win-the-2026-nhl-stanley-cup",
+    "last_updated": "2026-04-26T00:21:45.622994"
   }
 ]

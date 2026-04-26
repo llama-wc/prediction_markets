@@ -43,7 +43,6 @@
     display: grid; grid-template-columns: 380px 1fr; gap: 16px; height: 100%; min-height: 0; 
   }
 
-  /* Screener */
   .screener {
     background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
     display: flex; flex-direction: column; overflow: hidden;
@@ -67,7 +66,6 @@
   .r-vol { color: var(--text); font-size: 12px; font-variant-numeric: tabular-nums; }
   .r-title { color: var(--data); font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  /* Focus Node */
   .focus-node {
     background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
     display: flex; flex-direction: column; padding: 24px; overflow-y: auto;
@@ -77,20 +75,20 @@
   .focus-meta { font-size: 13px; color: var(--text); }
   .focus-prob-giant { font-size: 48px; font-weight: 800; color: var(--cyan); line-height: 1; text-align: right;}
   
-  /* Diagnostics Bar */
-  .metrics-bar {
-    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 24px;
-  }
+  /* Upgraded Diagnostics Bar */
+  .metrics-bar { display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 12px; margin-bottom: 24px; }
   .metric-box {
     background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
     padding: 12px; display: flex; flex-direction: column; justify-content: space-between;
   }
   .m-label { font-size: 10px; font-weight: 700; color: var(--text); text-transform: uppercase; margin-bottom: 6px;}
   .m-val { font-size: 18px; font-weight: 800; color: var(--data); }
+  .m-sub { font-size: 11px; color: var(--text); margin-top: 4px; }
   
   .val-high { color: var(--up); }
   .val-med { color: var(--med); }
   .val-low { color: var(--down); }
+  .val-crit { color: #f43f5e; text-shadow: 0 0 8px rgba(244,63,94,0.4); } /* Neon Pink for Whale Alerts */
 
   .chart-container { width: 100%; height: 260px; margin-bottom: 24px; }
 
@@ -111,6 +109,7 @@
     .dashboard-grid { grid-template-columns: 1fr; overflow-y: auto; height: auto; }
     body { overflow-y: auto; height: auto; }
     .screener-list { max-height: 300px; }
+    .metrics-bar { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -143,16 +142,19 @@
     
     <div class="metrics-bar">
       <div class="metric-box">
-        <div class="m-label">Active Limit Orders</div>
+        <div class="m-label">Market Depth</div>
         <div class="m-val" id="m-depth">0</div>
+        <div class="m-sub">Active Limit Orders</div>
       </div>
       <div class="metric-box">
         <div class="m-label">Crowd Consensus</div>
         <div class="m-val" id="m-cons">LOW</div>
+        <div class="m-sub">Decentralization Score</div>
       </div>
       <div class="metric-box">
-        <div class="m-label">Whale Risk</div>
-        <div class="m-val" id="m-whale">HIGH</div>
+        <div class="m-label">Whale Detection</div>
+        <div class="m-val" id="m-whale-size">$0</div>
+        <div class="m-sub" id="m-whale-ratio">0% of Active Book</div>
       </div>
     </div>
 
@@ -182,6 +184,12 @@
   let activeAssetId = null;
   let chartInstance = null;
   const DATA_URL = "./market-data.json";
+
+  function formatMoney(num) {
+    if (num >= 1000000) return '$' + (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return '$' + (num / 1000).toFixed(1) + 'k';
+    return '$' + Math.floor(num);
+  }
 
   async function bootPipeline() {
     try {
@@ -258,19 +266,31 @@
     document.getElementById('f-rules').innerHTML = bet.description;
     document.getElementById('f-link').href = bet.url;
 
-    // Diagnostics Mapping
-    const depthEl = document.getElementById('m-depth');
-    const consEl = document.getElementById('m-cons');
-    const whaleEl = document.getElementById('m-whale');
+    // Diagnostics Engine
+    document.getElementById('m-depth').innerText = bet.depth || 0;
     
-    depthEl.innerText = bet.depth || 0;
+    const consEl = document.getElementById('m-cons');
     consEl.innerText = bet.consensus || "N/A";
-    whaleEl.innerText = bet.whale_risk || "N/A";
-
-    // Color code Consensus
     consEl.className = 'm-val ' + (bet.consensus === 'HIGH' ? 'val-high' : bet.consensus === 'MEDIUM' ? 'val-med' : 'val-low');
-    // Inverse color code for Whale Risk
-    whaleEl.className = 'm-val ' + (bet.whale_risk === 'LOW' ? 'val-high' : bet.whale_risk === 'MEDIUM' ? 'val-med' : 'val-low');
+
+    // Whale Alert Engine
+    const whaleSizeEl = document.getElementById('m-whale-size');
+    const whaleRatioEl = document.getElementById('m-whale-ratio');
+    
+    let maxOrder = bet.max_order || 0;
+    let ratio = bet.whale_ratio || 0;
+    
+    whaleSizeEl.innerText = formatMoney(maxOrder);
+    whaleRatioEl.innerText = `Controls ${ratio}% of Book`;
+
+    // If one single order makes up more than 30% of the active market, trigger a critical alert
+    if (ratio > 30) {
+      whaleSizeEl.className = 'm-val val-crit';
+    } else if (ratio > 10) {
+      whaleSizeEl.className = 'm-val val-med';
+    } else {
+      whaleSizeEl.className = 'm-val val-high';
+    }
 
     renderChart(bet.history);
   }

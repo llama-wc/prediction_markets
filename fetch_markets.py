@@ -9,7 +9,6 @@ from datetime import datetime
 GAMMA_API = "https://gamma-api.polymarket.com/events?limit=15&active=true&closed=false"
 DATA_FILE = "market-data.json"
 
-# The Fake Mustache (Bypass Cloudflare Anti-Bot)
 HEADERS = {
     "Accept": "application/json",
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
@@ -18,8 +17,8 @@ HEADERS = {
 def get_market_density(clob_token):
     if not clob_token: return 0
     try:
-        # THE FIX: Changed ?token_id= to ?market=
-        book_url = f"https://clob.polymarket.com/book?market={clob_token}"
+        # THE FIX: Order book strictly uses ?token_id=
+        book_url = f"https://clob.polymarket.com/book?token_id={clob_token}"
         res = requests.get(book_url, headers=HEADERS, timeout=5)
         if res.status_code == 200:
             data = res.json()
@@ -74,13 +73,15 @@ def fetch_and_process():
 
             clob_token = None
             tokens_raw = str(market.get('clobTokenIds', ''))
-            token_match = re.search(r'(0x[a-fA-F0-9]+)', tokens_raw)
+            # THE CRITICAL FIX: Extract massive integer strings, not hex addresses
+            token_match = re.search(r'(\d{15,})', tokens_raw)
             if token_match:
                 clob_token = token_match.group(1)
 
             history = []
             if clob_token:
                 try:
+                    # History strictly uses ?market=
                     clob_url = f"https://clob.polymarket.com/prices-history?market={clob_token}&interval=1w&fidelity=60"
                     clob_res = requests.get(clob_url, headers=HEADERS, timeout=5)
                     if clob_res.status_code == 200:
@@ -103,7 +104,6 @@ def fetch_and_process():
             history[-1] = prob
             epoch_velocity = prob - history[-2] if len(history) > 1 else 0
 
-            # Fetch the actual density now that the URL is correct
             depth = get_market_density(clob_token)
             time.sleep(0.1)
             

@@ -2,6 +2,7 @@ import json
 import os
 import requests
 import time
+import ast
 from datetime import datetime
 
 GAMMA_API = "https://gamma-api.polymarket.com/events?limit=15&active=true&closed=false"
@@ -27,14 +28,17 @@ def fetch_and_process():
         market_id = str(event.get('id', index))
         title = event.get('title', 'Unknown')
         volume = float(event.get('volume', 0)) / 1000000
-        
-        slug = event.get('slug', '')
-        url = f"https://polymarket.com/event/{slug}" if slug else "https://polymarket.com"
+        url = f"https://polymarket.com/event/{event.get('slug', '')}"
 
+        # --- FIX 1: SANITIZE CATEGORY TAGS ---
         tags = event.get('tags', [])
-        category = "MISC"
+        category = "MACRO"
         if tags:
-            category = str(tags[0]).upper().replace(" ", "_")[:10]
+            first_tag = tags[0]
+            if isinstance(first_tag, dict) and 'label' in first_tag:
+                category = str(first_tag['label']).upper().replace(" ", "_")[:10]
+            elif isinstance(first_tag, str):
+                category = first_tag.upper().replace(" ", "_")[:10]
 
         prob = 50
         clob_token = None
@@ -43,24 +47,32 @@ def fetch_and_process():
         if markets:
             market_data = markets[0]
             
-            prices_raw = market_data.get('outcomePrices')
+            # --- FIX 2: SANITIZE PRICES (IGNORE 100% GLITCHES) ---
+            prices_raw = market_data.get('outcomePrices', [])
             if isinstance(prices_raw, str):
-                try: prices_raw = json.loads(prices_raw.replace("'", '"'))
-                except: prices_raw = prices_raw.strip('][').split(', ')
+                try: prices_raw = ast.literal_eval(prices_raw)
+                except: prices_raw = prices_raw.strip('][').replace('"', '').replace("'", "").split(',')
             
-            if isinstance(prices_raw, list) and len(prices_raw) > 0:
-                # FIX: Extract the leading probability (The "Favorite")
-                valid_prices = [float(p) for p in prices_raw if str(p).replace('.','',1).isdigit()]
+            if isinstance(prices_raw, list):
+                valid_prices = []
+                for p in prices_raw:
+                    try:
+                        val = float(p)
+                        if val < 0.99: # Ignore fully resolved/expired outcomes
+                            valid_prices.append(val)
+                    except: pass
                 if valid_prices:
                     prob = int(max(valid_prices) * 100)
-            
-            tokens_raw = market_data.get('clobTokenIds')
+
+            # Sanitize CLOB Tokens
+            tokens_raw = market_data.get('clobTokenIds', [])
             if isinstance(tokens_raw, str):
-                try: tokens_raw = json.loads(tokens_raw.replace("'", '"'))
-                except: tokens_raw = tokens_raw.strip('][').split(', ')
+                try: tokens_raw = ast.literal_eval(tokens_raw)
+                except: tokens_raw = tokens_raw.strip('][').replace('"', '').replace("'", "").split(',')
             if isinstance(tokens_raw, list) and len(tokens_raw) > 0:
                 clob_token = tokens_raw[0]
 
+        # Fetch CLOB History
         history = []
         if clob_token:
             try:

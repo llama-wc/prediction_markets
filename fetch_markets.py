@@ -14,18 +14,37 @@ HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
 }
 
-def get_market_density(clob_token):
-    if not clob_token: return 0
+def get_orderbook_stats(clob_token):
+    """Scans the order book to detect massive individual bets (Whales/Insiders)."""
+    if not clob_token: return {"depth": 0, "max_order": 0, "whale_ratio": 0}
     try:
-        # THE FIX: Order book strictly uses ?token_id=
         book_url = f"https://clob.polymarket.com/book?token_id={clob_token}"
         res = requests.get(book_url, headers=HEADERS, timeout=5)
         if res.status_code == 200:
             data = res.json()
-            return len(data.get('bids', [])) + len(data.get('asks', []))
+            bids = data.get('bids', [])
+            asks = data.get('asks', [])
+            all_orders = bids + asks
+            
+            depth = len(all_orders)
+            
+            # Extract the monetary size of every single limit order on the book
+            sizes = []
+            for order in all_orders:
+                try:
+                    sizes.append(float(order.get('size', 0)))
+                except: pass
+            
+            max_order = max(sizes) if sizes else 0
+            total_resting = sum(sizes) if sizes else 1 # Avoid division by zero
+            
+            # What percentage of the ENTIRE order book is controlled by the single biggest bet?
+            whale_ratio = (max_order / total_resting) * 100 if total_resting > 0 else 0
+            
+            return {"depth": depth, "max_order": max_order, "whale_ratio": whale_ratio}
     except:
         pass
-    return 0
+    return {"depth": 0, "max_order": 0, "whale_ratio": 0}
 
 def fetch_and_process():
     old_data = {}
@@ -73,7 +92,6 @@ def fetch_and_process():
 
             clob_token = None
             tokens_raw = str(market.get('clobTokenIds', ''))
-            # THE CRITICAL FIX: Extract massive integer strings, not hex addresses
             token_match = re.search(r'(\d{15,})', tokens_raw)
             if token_match:
                 clob_token = token_match.group(1)
@@ -81,7 +99,6 @@ def fetch_and_process():
             history = []
             if clob_token:
                 try:
-                    # History strictly uses ?market=
                     clob_url = f"https://clob.polymarket.com/prices-history?market={clob_token}&interval=1w&fidelity=60"
                     clob_res = requests.get(clob_url, headers=HEADERS, timeout=5)
                     if clob_res.status_code == 200:
@@ -104,17 +121,13 @@ def fetch_and_process():
             history[-1] = prob
             epoch_velocity = prob - history[-2] if len(history) > 1 else 0
 
-            depth = get_market_density(clob_token)
+            # Scan the active order book for Insider/Whale activity
+            book_stats = get_orderbook_stats(clob_token)
             time.sleep(0.1)
             
             consensus = "LOW"
-            whale_risk = "HIGH"
-            if depth > 200:
-                consensus = "HIGH"
-                whale_risk = "LOW"
-            elif depth > 50:
-                consensus = "MEDIUM"
-                whale_risk = "MEDIUM"
+            if book_stats["depth"] > 200: consensus = "HIGH"
+            elif book_stats["depth"] > 50: consensus = "MEDIUM"
 
             processed_data.append({
                 "id": market_id,
@@ -125,9 +138,10 @@ def fetch_and_process():
                 "vol": round(volume, 2),
                 "epoch_velocity": epoch_velocity,
                 "history": history,
-                "depth": depth,
+                "depth": book_stats["depth"],
+                "max_order": round(book_stats["max_order"], 2),
+                "whale_ratio": round(book_stats["whale_ratio"], 1),
                 "consensus": consensus,
-                "whale_risk": whale_risk,
                 "url": url,
                 "last_updated": datetime.utcnow().isoformat()
             })

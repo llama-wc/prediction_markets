@@ -9,7 +9,7 @@ from datetime import datetime
 GAMMA_API = "https://gamma-api.polymarket.com/events?limit=15&active=true&closed=false"
 DATA_FILE = "market-data.json"
 
-# THE FAKE MUSTACHE (Bypass Cloudflare Anti-Bot)
+# The Fake Mustache (Bypass Cloudflare Anti-Bot)
 HEADERS = {
     "Accept": "application/json",
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
@@ -18,8 +18,8 @@ HEADERS = {
 def get_market_density(clob_token):
     if not clob_token: return 0
     try:
-        book_url = f"https://clob.polymarket.com/book?token_id={clob_token}"
-        # Pass the headers to trick the firewall
+        # THE FIX: Changed ?token_id= to ?market=
+        book_url = f"https://clob.polymarket.com/book?market={clob_token}"
         res = requests.get(book_url, headers=HEADERS, timeout=5)
         if res.status_code == 200:
             data = res.json()
@@ -38,7 +38,6 @@ def fetch_and_process():
         except Exception:
             pass 
 
-    # Pass the headers to the main API
     response = requests.get(GAMMA_API, headers=HEADERS)
     live_events = response.json()
 
@@ -83,7 +82,6 @@ def fetch_and_process():
             if clob_token:
                 try:
                     clob_url = f"https://clob.polymarket.com/prices-history?market={clob_token}&interval=1w&fidelity=60"
-                    # Pass the headers to the history API
                     clob_res = requests.get(clob_url, headers=HEADERS, timeout=5)
                     if clob_res.status_code == 200:
                         hist_data = clob_res.json().get('history', [])
@@ -105,6 +103,7 @@ def fetch_and_process():
             history[-1] = prob
             epoch_velocity = prob - history[-2] if len(history) > 1 else 0
 
+            # Fetch the actual density now that the URL is correct
             depth = get_market_density(clob_token)
             time.sleep(0.1)
             

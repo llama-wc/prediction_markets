@@ -3,234 +3,300 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ALPHA_TERMINAL // POLYMARKET</title>
+<title>ALPHA_TERMINAL</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   :root {
-    --bg: #000000;
-    --text: #71717a; /* Zinc 500 */
-    --data: #ffffff; /* Pure White */
+    --bg: #09090b;
+    --panel: #18181b;
+    --text: #a1a1aa;
+    --data: #ffffff;
+    --cyan: #06b6d4;
+    --cyan-dim: rgba(6, 182, 212, 0.15);
+    --border: #27272a;
     --up: #10b981;
     --down: #ef4444;
-    --border: #27272a;
   }
 
   body {
-    background: var(--bg); 
-    color: var(--text);
-    font-family: 'JetBrains Mono', 'Courier New', monospace;
-    font-size: 12px; 
-    margin: 0; 
-    padding: 16px;
-    -webkit-font-smoothing: antialiased;
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0; padding: 16px; height: 100vh; box-sizing: border-box;
+    display: flex; flex-direction: column; overflow: hidden;
   }
 
-  h1 { font-size: 16px; color: var(--data); margin: 0 0 4px 0; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;}
-  .status { font-size: 10px; color: var(--text); margin-bottom: 24px; text-transform: uppercase;}
-
-  /* Brutalist Filters */
-  .filters { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 24px;}
+  /* Header & Slicers */
+  header { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 16px; flex-shrink: 0;}
+  h1 { margin: 0; font-size: 18px; color: var(--data); font-weight: 800; letter-spacing: -0.5px; }
+  .status { font-size: 11px; font-family: monospace; color: var(--cyan); }
+  
+  .filters { display: flex; gap: 8px; }
   .btn { 
-    background: transparent; color: var(--text); border: 1px solid var(--border); 
-    padding: 6px 12px; font-size: 10px; font-weight: bold; cursor: pointer; 
-    white-space: nowrap; text-transform: uppercase;
+    background: var(--panel); color: var(--text); border: 1px solid var(--border); 
+    padding: 6px 14px; font-size: 11px; font-weight: 600; cursor: pointer; border-radius: 4px;
+    transition: all 0.2s;
   }
   .btn:hover { border-color: var(--text); }
   .btn.active { background: var(--data); color: var(--bg); border-color: var(--data); }
 
-  .panel-title { 
-    font-size: 11px; color: var(--text); border-bottom: 1px solid var(--border); 
-    padding-bottom: 6px; margin: 0 0 12px 0; font-weight: bold; letter-spacing: 1px;
+  /* Master-Detail Grid */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 16px;
+    height: 100%;
+    min-height: 0; /* allows children to scroll */
   }
 
-  /* Strict CSS Grid Alignment */
-  .grid-header { 
-    display: grid; grid-template-columns: 35px 45px 50px 1fr; gap: 12px; 
-    font-size: 10px; color: var(--text); margin-bottom: 8px; font-weight: bold;
+  /* Left Side: The Screener */
+  .screener {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+    display: flex; flex-direction: column; overflow: hidden;
   }
-  .row { 
-    display: grid; grid-template-columns: 35px 45px 50px 1fr; gap: 12px; 
-    padding: 10px 0; border-bottom: 1px dashed var(--border); align-items: center; 
+  .screener-header {
+    display: grid; grid-template-columns: 40px 60px 1fr; gap: 12px;
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    font-size: 10px; font-weight: 700; color: var(--text); text-transform: uppercase;
   }
-  .row:hover { background: rgba(255, 255, 255, 0.05); }
+  .screener-list { overflow-y: auto; flex-grow: 1; }
+  
+  .row {
+    display: grid; grid-template-columns: 40px 60px 1fr; gap: 12px;
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    cursor: pointer; align-items: center; transition: background 0.1s;
+  }
+  .row:hover { background: rgba(255,255,255,0.03); }
+  .row.active-row { background: var(--cyan-dim); border-left: 3px solid var(--cyan); padding-left: 13px; }
 
-  /* Data Elements */
-  .prob { color: var(--data); font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; }
-  .spark { color: var(--data); font-size: 12px; letter-spacing: 1px; }
-  .vol { color: var(--text); font-variant-numeric: tabular-nums;}
-  .market { color: var(--data); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .market a { color: inherit; text-decoration: none; }
-  .market a:hover { text-decoration: underline; }
+  .r-prob { color: var(--cyan); font-weight: 800; font-size: 16px; }
+  .r-vol { color: var(--text); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .r-title { color: var(--data); font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  .vel { font-weight: 700; font-size: 13px; font-variant-numeric: tabular-nums;}
-  .shift-up { color: var(--up); }
-  .shift-down { color: var(--down); }
+  /* Right Side: The Chart Engine */
+  .focus-node {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+    display: flex; flex-direction: column; padding: 24px; overflow-y: auto;
+  }
+  .focus-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+  .focus-title { font-size: 24px; font-weight: 800; color: var(--data); margin: 0 0 8px 0; line-height: 1.2; max-width: 80%;}
+  .focus-meta { font-size: 13px; color: var(--text); }
+  .focus-prob-giant { font-size: 48px; font-weight: 800; color: var(--cyan); line-height: 1; text-align: right;}
+  
+  .chart-container { width: 100%; height: 300px; margin-bottom: 24px; }
 
-  .grid-three { display: flex; flex-direction: column; gap: 32px; }
-  .whale-row { font-size: 11px; padding: 6px 0; border-bottom: 1px dashed var(--border); }
+  .rules-box {
+    background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 16px; font-size: 13px; color: var(--text); line-height: 1.6;
+  }
+  .rules-title { font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--data); margin-bottom: 8px; }
+
+  .action-bar { margin-top: 24px; display: flex; gap: 12px; }
+  .trade-btn { 
+    background: var(--cyan); color: var(--bg); font-weight: 700; font-size: 14px; 
+    padding: 12px 24px; border-radius: 4px; text-decoration: none; display: inline-block;
+  }
+  .trade-btn:hover { opacity: 0.9; }
+
+  /* Mobile Layout Fallback */
+  @media (max-width: 900px) {
+    .dashboard-grid { grid-template-columns: 1fr; overflow-y: auto; height: auto; }
+    body { overflow-y: auto; height: auto; }
+    .screener-list { max-height: 300px; }
+  }
 </style>
 </head>
 <body>
 
-<div class="terminal">
-  <header>
+<header>
+  <div>
     <h1>ALPHA_TERMINAL</h1>
-    <div class="status" id="sys-status">BOOTING PIPELINE...</div>
-  </header>
+    <div class="status" id="sys-status">AWAITING PAYLOAD...</div>
+  </div>
+  <div class="filters" id="dynamic-categories"></div>
+</header>
 
-  <div class="filters" id="dynamic-categories">
+<div class="dashboard-grid">
+  <div class="screener">
+    <div class="screener-header">
+      <div>PRB</div><div>VOL</div><div>ASSET</div>
+    </div>
+    <div class="screener-list" id="screener-list"></div>
+  </div>
+
+  <div class="focus-node" id="focus-node" style="display:none;">
+    <div class="focus-header">
+      <div>
+        <h2 class="focus-title" id="f-title">Market Title</h2>
+        <div class="focus-meta" id="f-meta">$0.0M Vol • Category</div>
+      </div>
+      <div class="focus-prob-giant" id="f-prob">0%</div>
+    </div>
+    
+    <div class="chart-container">
+      <canvas id="mainChart"></canvas>
     </div>
 
-  <main class="grid-three">
-    <section>
-      <div class="panel-title">LIQUIDITY_NODE</div>
-      <div class="grid-header">
-        <div>PRB</div><div>TRND</div><div>VOL</div><div>ASSET</div>
-      </div>
-      <div id="volume-board"></div>
-    </section>
-    
-    <section>
-      <div class="panel-title">VELOCITY_NODE</div>
-      <div class="grid-header">
-        <div>24H_Δ</div><div>PRB</div><div></div><div>ASSET</div>
-      </div>
-      <div id="momentum-board"></div>
-    </section>
+    <div class="rules-box">
+      <div class="rules-title">Market Context & Rules</div>
+      <div id="f-rules"></div>
+    </div>
 
-    <section>
-      <div class="panel-title">WHALE_ORDER_FLOW</div>
-      <div id="whale-board"></div>
-    </section>
-  </main>
+    <div class="action-bar">
+      <a href="#" target="_blank" class="trade-btn" id="f-link">Open Order Book ↗</a>
+    </div>
+  </div>
 </div>
 
 <script>
-  const volumeBoard = document.getElementById('volume-board');
-  const momentumBoard = document.getElementById('momentum-board');
-  const whaleBoard = document.getElementById('whale-board');
+  const screenerList = document.getElementById('screener-list');
+  const focusNode = document.getElementById('focus-node');
+  const catContainer = document.getElementById('dynamic-categories');
   const statusDisplay = document.getElementById('sys-status');
-  const categoryContainer = document.getElementById('dynamic-categories');
 
   let marketData = [];
   let activeCategory = "ALL";
+  let activeAssetId = null;
+  let chartInstance = null;
   const DATA_URL = "./market-data.json";
-
-  // Replaced Braille with highly readable Block Elements
-  function getBlockSparkline(history) {
-    if(!history || history.length === 0) return "—";
-    const min = Math.min(...history);
-    const max = Math.max(...history);
-    const range = (max - min) || 1;
-    const blocks = ['_', '▃', '▆', '█']; 
-    
-    return history.slice(-4).map(val => {
-      const normalized = Math.floor(((val - min) / range) * 3.99);
-      return blocks[normalized];
-    }).join('');
-  }
 
   async function bootPipeline() {
     try {
       const response = await fetch(`${DATA_URL}?t=${new Date().getTime()}`);
-      if (!response.ok) throw new Error("AWAITING CRON");
-      
       marketData = await response.json();
+      
       const timeString = new Date().toISOString().split('T')[1].substring(0,8);
       statusDisplay.innerHTML = `LIVE_SYNC: ${timeString} UTC`;
       
-      buildDynamicSlicers();
-      renderDashboards();
+      buildSlicers();
+      renderScreener();
+      
+      // Auto-select the first item if nothing is selected
+      if (!activeAssetId && marketData.length > 0) {
+        selectAsset(marketData[0].id);
+      } else if (activeAssetId) {
+        // Refresh the chart data silently if it's already open
+        selectAsset(activeAssetId);
+      }
     } catch (error) {
-      statusDisplay.innerHTML = `ERR: PIPELINE SEVERED.`;
+      statusDisplay.innerHTML = `ERR: DATA PIPELINE OFFLINE`;
     }
   }
 
-  function buildDynamicSlicers() {
+  function buildSlicers() {
     const uniqueCategories = [...new Set(marketData.map(item => item.category))].filter(Boolean).slice(0, 5);
     let html = `<button class="btn ${activeCategory === 'ALL' ? 'active' : ''}" data-val="ALL">ALL</button>`;
     
     uniqueCategories.forEach(cat => {
-      const isActive = activeCategory === cat ? 'active' : '';
-      html += `<button class="btn ${isActive}" data-val="${cat}">${cat}</button>`;
+      html += `<button class="btn ${activeCategory === cat ? 'active' : ''}" data-val="${cat}">${cat}</button>`;
     });
-    
-    categoryContainer.innerHTML = html;
+    catContainer.innerHTML = html;
 
     document.querySelectorAll('.btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         activeCategory = e.target.dataset.val;
-        buildDynamicSlicers();
-        renderDashboards();
+        buildSlicers();
+        renderScreener();
       });
     });
   }
 
-  function renderDashboards() {
-    if (marketData.length === 0) return;
-
-    let filteredData = marketData.filter(bet => activeCategory === "ALL" || bet.category === activeCategory);
-    let volSorted = [...filteredData].sort((a, b) => b.vol - a.vol).slice(0, 7);
-    let momSorted = [...filteredData].sort((a, b) => Math.abs(b.epoch_velocity || 0) - Math.abs(a.epoch_velocity || 0)).slice(0, 7);
-
-    // --- RENDER LIQUIDITY ---
-    let volHtml = '';
-    if (volSorted.length === 0) volHtml = `<div class="row"><div style="grid-column: 1 / -1; color:var(--text)">NO DATA</div></div>`;
+  function renderScreener() {
+    let filtered = marketData.filter(bet => activeCategory === "ALL" || bet.category === activeCategory);
     
-    volSorted.forEach(bet => {
-      const spark = getBlockSparkline(bet.history);
+    let html = '';
+    filtered.forEach(bet => {
       const volInt = Math.floor(bet.vol);
       const volDec = Math.floor((bet.vol % 1) * 10);
+      const isActive = activeAssetId === bet.id ? 'active-row' : '';
       
-      volHtml += `<div class="row">
-        <div class="prob">${String(bet.prob).padStart(2, '0')}</div>
-        <div class="spark">${spark}</div>
-        <div class="vol">$${volInt}.${volDec}M</div>
-        <div class="market"><a href="${bet.url}" target="_blank">${bet.market}</a></div>
+      html += `<div class="row ${isActive}" data-id="${bet.id}">
+        <div class="r-prob">${bet.prob}%</div>
+        <div class="r-vol">$${volInt}.${volDec}M</div>
+        <div class="r-title">${bet.market}</div>
       </div>`;
     });
-    volumeBoard.innerHTML = volHtml;
+    screenerList.innerHTML = html;
 
-    // --- RENDER VELOCITY ---
-    let momHtml = '';
-    if (momSorted.length === 0) momHtml = `<div class="row"><div style="grid-column: 1 / -1; color:var(--text)">NO DATA</div></div>`;
-
-    momSorted.forEach(bet => {
-      const vel = bet.epoch_velocity || 0;
-      const shiftIcon = vel >= 0 ? '▲' : '▼';
-      const shiftClass = vel >= 0 ? 'shift-up' : 'shift-down';
-      
-      momHtml += `<div class="row">
-        <div class="vel ${shiftClass}">${shiftIcon}${Math.abs(vel)}</div>
-        <div class="prob">${String(bet.prob).padStart(2, '0')}</div>
-        <div></div>
-        <div class="market"><a href="${bet.url}" target="_blank">${bet.market}</a></div>
-      </div>`;
+    // Bind clicks to open the chart
+    document.querySelectorAll('.row').forEach(row => {
+      row.addEventListener('click', () => selectAsset(row.dataset.id));
     });
-    momentumBoard.innerHTML = momHtml;
   }
 
-  // --- WHALE WATCH SIMULATOR ---
-  function pushWhaleOrder() {
-    if (marketData.length === 0) return;
-    const trade = marketData[Math.floor(Math.random() * Math.min(marketData.length, 5))];
-    if(!trade) return;
+  function selectAsset(id) {
+    activeAssetId = id;
+    const bet = marketData.find(m => m.id === id);
+    if(!bet) return;
+
+    renderScreener(); // Updates the highlight state
+    focusNode.style.display = 'flex';
+
+    // Populate Data
+    document.getElementById('f-title').innerText = bet.market;
+    document.getElementById('f-prob').innerText = `${bet.prob}%`;
+    document.getElementById('f-meta').innerText = `$${bet.vol.toFixed(1)}M Vol • ${bet.category}`;
+    document.getElementById('f-rules').innerHTML = bet.description;
+    document.getElementById('f-link').href = bet.url;
+
+    renderChart(bet.history);
+  }
+
+  function renderChart(historyData) {
+    const ctx = document.getElementById('mainChart').getContext('2d');
     
-    const time = new Date().toISOString().split('T')[1].substring(0,8);
-    const size = Math.floor(Math.random() * 90) + 10;
-    const side = Math.random() > 0.5 ? "BUY YES" : "SELL NO";
-    const user = "0x" + Math.random().toString(16).substring(2, 6);
-    
-    const row = document.createElement('div');
-    row.className = 'whale-row';
-    row.innerHTML = `<span style="color:var(--text)">[${time}]</span> <span style="color:var(--up); font-weight:bold;">$${size}.0k</span> ${side} &nbsp;|&nbsp; <a href="${trade.url}" target="_blank" style="color:var(--data); text-decoration:none;">${trade.market}</a>`;
-    
-    whaleBoard.prepend(row);
-    if (whaleBoard.children.length > 5) whaleBoard.lastChild.remove();
+    if (chartInstance) { chartInstance.destroy(); }
+
+    // Create a smooth, synthetic X-axis
+    const labels = historyData.map((_, i) => `T-${historyData.length - 1 - i}`);
+
+    // The Gradient Fill (The Flex)
+    let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(6, 182, 212, 0.4)'); // Cyan
+    gradient.addColorStop(1, 'rgba(6, 182, 212, 0.0)');
+
+    chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: historyData,
+          borderColor: '#06b6d4',
+          backgroundColor: gradient,
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 6,
+          fill: true,
+          tension: 0.1 // Slight curve to the line
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            mode: 'index', intersect: false,
+            backgroundColor: '#18181b', titleColor: '#a1a1aa', bodyColor: '#ffffff',
+            borderColor: '#27272a', borderWidth: 1,
+            callbacks: { label: function(context) { return context.parsed.y + '%'; } }
+          }
+        },
+        scales: {
+          x: { display: false }, // Hide X axis for cleaner look
+          y: { 
+            display: true, 
+            min: 0, max: 100, 
+            grid: { color: '#27272a', drawBorder: false },
+            ticks: { color: '#a1a1aa', stepSize: 25, callback: function(value) { return value + '%'; } }
+          }
+        },
+        interaction: { mode: 'nearest', axis: 'x', intersect: false }
+      }
+    });
   }
 
   bootPipeline();
-  setInterval(bootPipeline, 60000); 
-  setInterval(pushWhaleOrder, 3500); 
+  setInterval(bootPipeline, 60000);
 </script>
 </body>
 </html>
